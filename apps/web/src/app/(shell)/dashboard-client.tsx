@@ -1,0 +1,67 @@
+"use client";
+
+import { useTransition, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { DashboardGrid } from "@/components/dashboard/DashboardGrid";
+import { OverdueBlock } from "@/components/dashboard/OverdueBlock";
+import { DueTodayBlock } from "@/components/dashboard/DueTodayBlock";
+import { NextUpBlock } from "@/components/dashboard/NextUpBlock";
+import { HighPriorityBlock } from "@/components/dashboard/HighPriorityBlock";
+import { InboxBlock } from "@/components/dashboard/InboxBlock";
+import { FocusBlock } from "@/components/dashboard/FocusBlock";
+import { PinnedCapturesBlock } from "@/components/dashboard/PinnedCapturesBlock";
+import { completeTask, reopenTask } from "@/lib/api/tasks";
+import type { Task, Capture } from "@/types";
+
+interface DashboardClientProps {
+  overdue: Task[];
+  dueToday: Task[];
+  nextUp: Task[];
+  highPriority: Task[];
+  inbox: Task[];
+  focus: Task[];
+  pinnedCaptures: Capture[];
+}
+
+export function DashboardClient({
+  overdue,
+  dueToday,
+  nextUp,
+  highPriority,
+  inbox,
+  focus,
+  pinnedCaptures,
+}: DashboardClientProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+
+  const handleToggleComplete = useCallback(
+    (taskId: string, done: boolean) => {
+      startTransition(async () => {
+        try {
+          if (done) {
+            await completeTask(taskId);
+          } else {
+            await reopenTask(taskId);
+          }
+          router.refresh();
+        } catch {
+          // silently fail - real error handling deferred
+        }
+      });
+    },
+    [router]
+  );
+
+  return (
+    <DashboardGrid>
+      <OverdueBlock tasks={overdue} onToggleComplete={handleToggleComplete} />
+      <DueTodayBlock tasks={dueToday} onToggleComplete={handleToggleComplete} />
+      <FocusBlock tasks={focus} onToggleComplete={handleToggleComplete} />
+      <NextUpBlock tasks={nextUp} onToggleComplete={handleToggleComplete} />
+      <HighPriorityBlock tasks={highPriority} onToggleComplete={handleToggleComplete} />
+      <InboxBlock tasks={inbox} onToggleComplete={handleToggleComplete} />
+      <PinnedCapturesBlock captures={pinnedCaptures} />
+    </DashboardGrid>
+  );
+}
