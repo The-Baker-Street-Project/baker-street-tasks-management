@@ -14,7 +14,7 @@ AI-first single-user task management and capture system. pnpm monorepo with Next
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start Postgres + run migrations + seed + start all services |
+| `pnpm dev` | Initialize PGlite data dir + run migrations + seed + start all services |
 | `pnpm build` | Build all packages via Turbo |
 | `pnpm lint` | Lint all packages |
 | `pnpm db:migrate` | Run Drizzle migrations |
