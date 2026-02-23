@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: baker-street-config
+  namespace: baker-street
+data:
+  PGLITE_DATA_DIR: /data/pglite
+  MCP_PORT: "3100"
+  NEXT_PUBLIC_APP_URL: http://localhost:3000

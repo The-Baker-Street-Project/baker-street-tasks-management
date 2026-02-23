@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: baker-street
+  namespace: baker-street
+  labels:
+    app: baker-street
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: baker-street
+  template:
+    metadata:
+      labels:
+        app: baker-street
+    spec:
+      containers:
+        - name: baker-street
+          image: baker-street-tasks:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: web
+              containerPort: 3000
+            - name: mcp
+              containerPort: 3100
+          envFrom:
+            - configMapRef:
+                name: baker-street-config
+            - secretRef:
+                name: baker-street-secrets
+          volumeMounts:
+            - name: pglite-data
+              mountPath: /data/pglite
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3100
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 512Mi
+              cpu: 500m
+      volumes:
+        - name: pglite-data
+          persistentVolumeClaim:
+            claimName: pglite-data
