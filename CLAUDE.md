@@ -1,6 +1,6 @@
 # Baker Street Tasks
 
-AI-first single-user task management and capture system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on PostgreSQL.
+AI-first single-user task management and capture system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on PGlite (in-process WASM Postgres).
 
 ## Packages
 
@@ -76,7 +76,7 @@ packages/mcp-server/src/
 ## Environment
 
 Generated automatically by `scripts/dev.sh` on first run:
-- `DATABASE_URL` — PostgreSQL connection string (default: `postgresql://baker:baker_dev@localhost:5432/baker_street_tasks`)
+- `PGLITE_DATA_DIR` — PGlite data directory (default: `./data/pglite`)
 - `MCP_API_KEY` — Bearer token for MCP server auth (auto-generated hex)
 - `MCP_PORT` — MCP server port (default: 3100)
 - `NEXT_PUBLIC_APP_URL` — Web app URL (default: `http://localhost:3000`)
@@ -91,6 +91,25 @@ Generated automatically by `scripts/dev.sh` on first run:
 - **No auth in v1**: Single API key for everything. No user sessions or login flow yet
 - **Subtask auto-complete**: Completing a parent task with incomplete subtasks triggers a warning; on confirm, all subtasks are auto-marked done
 - **Virtual scrolling**: TaskList uses `@tanstack/react-virtual`; CaptureList is not yet virtualized
+- **PGlite single-writer**: Only one process can open a PGlite data directory at a time. In dev, web and mcp-server use separate data dirs. In production K8s, a unified server.ts runs both in one process
+
+## Deployment (K8s)
+
+Single-pod deployment on local k3s. Manifests in `k8s/`.
+
+```bash
+# Build image
+docker build -f apps/web/Dockerfile -t baker-street-tasks:latest .
+
+# Apply manifests
+kubectl apply -f k8s/
+
+# Check status
+kubectl -n baker-street get pods
+
+# Port-forward for local access
+kubectl -n baker-street port-forward svc/baker-street 3000:3000 3100:3100
+```
 
 ## Reference Docs
 
