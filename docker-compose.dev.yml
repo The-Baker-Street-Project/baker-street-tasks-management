@@ -1,19 +1,22 @@
-services:
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_USER: baker
-      POSTGRES_PASSWORD: baker_dev
-      POSTGRES_DB: baker_street_tasks
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U baker -d baker_street_tasks"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  pgdata:
+# PostgreSQL dev container — replaced by PGlite (in-process).
+# Kept for reference in case external Postgres is ever needed again.
+#
+# services:
+#   postgres:
+#     image: postgres:17-alpine
+#     environment:
+#       POSTGRES_USER: baker
+#       POSTGRES_PASSWORD: baker_dev
+#       POSTGRES_DB: baker_street_tasks
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - pgdata:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U baker -d baker_street_tasks"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+#
+# volumes:
+#   pgdata:
