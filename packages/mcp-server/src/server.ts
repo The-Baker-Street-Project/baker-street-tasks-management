@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import { pathToFileURL } from "url";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createDb } from "@baker-street/db/client";
@@ -98,8 +99,8 @@ app.delete("/mcp", async (req, res) => {
 // ── standalone start (when run directly) ────────────────────────────
 
 const isMainModule =
-  process.argv[1] &&
-  (process.argv[1].endsWith("/server.js") || process.argv[1].endsWith("/server.ts"));
+  process.argv[1] != null &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
 
 if (isMainModule) {
   const PORT = parseInt(process.env.PORT ?? process.env.MCP_PORT ?? "3100", 10);
