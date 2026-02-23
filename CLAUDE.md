@@ -80,6 +80,8 @@ Generated automatically by `scripts/dev.sh` on first run:
 - `MCP_API_KEY` — Bearer token for MCP server auth (auto-generated hex)
 - `MCP_PORT` — MCP server port (default: 3100)
 - `NEXT_PUBLIC_APP_URL` — Web app URL (default: `http://localhost:3000`)
+- `NATS_URL` — (optional) NATS server URL for Baker Street extension registration. If unset, extension registration is disabled
+- `EXTENSION_MCP_URL` — (optional) MCP URL the Brain uses to reach this server (default: K8s service URL)
 
 ## Gotchas
 
@@ -109,6 +111,15 @@ kubectl -n baker-street get pods
 
 # Port-forward for local access
 kubectl -n baker-street port-forward svc/baker-street 3000:3000 3100:3100
+```
+
+## Baker Street Extension
+
+The MCP server can register as a Baker Street platform extension. When `NATS_URL` is set, it announces itself on NATS and heartbeats every 30s. The Brain auto-discovers all 34 task management tools.
+
+Deploy to the `bakerst` namespace:
+```bash
+kubectl apply -f k8s/extension.yaml
 ```
 
 ## Reference Docs
