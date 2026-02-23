@@ -1,4 +1,4 @@
-import { createDb } from "./client";
+import { createDb, getPgliteClient } from "./client";
 import { savedViews } from "./schema/views";
 import { eq } from "drizzle-orm";
 
@@ -42,10 +42,16 @@ async function seed() {
   ]);
 
   console.log("Seed complete.");
+
+  // Close PGlite to flush writes before exit
+  await getPgliteClient().close();
   process.exit(0);
 }
 
-seed().catch((err) => {
+seed().catch(async (err) => {
   console.error("Seed failed:", err);
+  try {
+    await getPgliteClient().close();
+  } catch {}
   process.exit(1);
 });
