@@ -1,14 +1,10 @@
-import express from "express";
+import express, { Express } from "express";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { createDb } from "@baker-street/db/client";
 import { authMiddleware } from "./middleware/auth";
 import { mcpRateLimiter } from "./middleware/rate-limit";
 import { registerAllTools } from "./tools/index";
-
-// ── configuration ───────────────────────────────────────────────────
-
-const PORT = parseInt(process.env.PORT ?? "3100", 10);
 
 // ── database ────────────────────────────────────────────────────────
 
@@ -29,7 +25,7 @@ function createMcpServer(): McpServer {
 
 // ── Express app ─────────────────────────────────────────────────────
 
-const app = express();
+export const app: Express = express();
 
 // Health endpoint — no auth required
 app.get("/health", (_req, res) => {
@@ -43,19 +39,15 @@ app.use("/mcp", authMiddleware, mcpRateLimiter);
 const sessions = new Map<string, { server: McpServer; transport: StreamableHTTPServerTransport }>();
 
 // ─── POST /mcp ──────────────────────────────────────────────────────
-// Handles JSON-RPC requests. Creates a new session if no session ID is
-// present, otherwise routes to the existing session's transport.
 app.post("/mcp", async (req, res) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
   if (sessionId && sessions.has(sessionId)) {
-    // Route to existing session
     const session = sessions.get(sessionId)!;
     await session.transport.handleRequest(req, res);
     return;
   }
 
-  // Create a new session
   const server = createMcpServer();
 
   const transport = new StreamableHTTPServerTransport({
@@ -65,7 +57,6 @@ app.post("/mcp", async (req, res) => {
     },
   });
 
-  // Clean up on close
   transport.onclose = () => {
     const sid = transport.sessionId;
     if (sid) {
@@ -78,7 +69,6 @@ app.post("/mcp", async (req, res) => {
 });
 
 // ─── GET /mcp ───────────────────────────────────────────────────────
-// SSE streaming endpoint for server-to-client notifications
 app.get("/mcp", async (req, res) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
@@ -92,7 +82,6 @@ app.get("/mcp", async (req, res) => {
 });
 
 // ─── DELETE /mcp ────────────────────────────────────────────────────
-// Session cleanup
 app.delete("/mcp", async (req, res) => {
   const sessionId = req.headers["mcp-session-id"] as string | undefined;
 
@@ -106,10 +95,17 @@ app.delete("/mcp", async (req, res) => {
   sessions.delete(sessionId);
 });
 
-// ── start ───────────────────────────────────────────────────────────
+// ── standalone start (when run directly) ────────────────────────────
 
-app.listen(PORT, () => {
-  console.log(`Baker Street Tasks MCP server listening on port ${PORT}`);
-  console.log(`  POST/GET/DELETE /mcp  — MCP Streamable HTTP transport`);
-  console.log(`  GET /health           — health check`);
-});
+const isMainModule =
+  process.argv[1] &&
+  (process.argv[1].endsWith("/server.js") || process.argv[1].endsWith("/server.ts"));
+
+if (isMainModule) {
+  const PORT = parseInt(process.env.PORT ?? process.env.MCP_PORT ?? "3100", 10);
+  app.listen(PORT, () => {
+    console.log(`Baker Street Tasks MCP server listening on port ${PORT}`);
+    console.log(`  POST/GET/DELETE /mcp  — MCP Streamable HTTP transport`);
+    console.log(`  GET /health           — health check`);
+  });
+}
