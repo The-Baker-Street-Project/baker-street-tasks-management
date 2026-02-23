@@ -6,6 +6,7 @@ import { createDb } from "@baker-street/db/client";
 import { authMiddleware } from "./middleware/auth";
 import { mcpRateLimiter } from "./middleware/rate-limit";
 import { registerAllTools } from "./tools/index";
+import { startExtension, stopExtension } from "./extension";
 
 // ── database ────────────────────────────────────────────────────────
 
@@ -27,6 +28,7 @@ function createMcpServer(): McpServer {
 // ── Express app ─────────────────────────────────────────────────────
 
 export const app: Express = express();
+export { startExtension, stopExtension } from "./extension";
 
 // Health endpoint — no auth required
 app.get("/health", (_req, res) => {
@@ -104,9 +106,18 @@ const isMainModule =
 
 if (isMainModule) {
   const PORT = parseInt(process.env.PORT ?? process.env.MCP_PORT ?? "3100", 10);
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log(`Baker Street Tasks MCP server listening on port ${PORT}`);
     console.log(`  POST/GET/DELETE /mcp  — MCP Streamable HTTP transport`);
     console.log(`  GET /health           — health check`);
+    await startExtension();
   });
+
+  // Graceful shutdown
+  const shutdown = async () => {
+    await stopExtension();
+    process.exit(0);
+  };
+  process.on("SIGTERM", shutdown);
+  process.on("SIGINT", shutdown);
 }
