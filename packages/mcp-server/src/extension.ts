@@ -39,6 +39,7 @@ const sc = StringCodec();
  * and begins heartbeat loop. No-op if NATS_URL is not set.
  */
 export async function startExtension(): Promise<void> {
+  if (nc) return;
   const natsUrl = process.env.NATS_URL;
   if (!natsUrl) return;
 
@@ -68,7 +69,10 @@ export async function startExtension(): Promise<void> {
 
     // Heartbeat every 30s
     heartbeatTimer = setInterval(() => {
-      if (!nc || nc.isClosed()) return;
+      if (!nc || nc.isClosed()) {
+        console.warn("Extension heartbeat skipped — NATS connection is closed");
+        return;
+      }
       const heartbeat = {
         id: EXTENSION_ID,
         timestamp: new Date().toISOString(),
