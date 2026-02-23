@@ -1,21 +1,22 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { PGlite } from "@electric-sql/pglite";
+import { drizzle } from "drizzle-orm/pglite";
 import * as schema from "./schema/index";
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
-let _dbUrl: string | null = null;
+let _client: PGlite | null = null;
 
-export function createDb(connectionString?: string) {
-  const url = connectionString ?? process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL is required");
-  }
-  // Return singleton if same URL (or no explicit URL)
-  if (_db && _dbUrl === url) return _db;
-  const client = postgres(url);
-  _db = drizzle(client, { schema });
-  _dbUrl = url;
+export function createDb(dataDir?: string) {
+  if (_db) return _db;
+  const dir = dataDir ?? process.env.PGLITE_DATA_DIR ?? "./data/pglite";
+  _client = new PGlite(dir);
+  _db = drizzle({ client: _client, schema });
   return _db;
+}
+
+/** Expose the raw PGlite instance for LISTEN/NOTIFY and direct SQL. */
+export function getPgliteClient(): PGlite {
+  if (!_client) createDb();
+  return _client!;
 }
 
 export type Database = ReturnType<typeof createDb>;
