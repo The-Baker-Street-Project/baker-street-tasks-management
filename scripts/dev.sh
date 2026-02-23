@@ -20,13 +20,10 @@ fi
 
 set -a; source .env; set +a
 
-# Start Postgres if not running
-if ! docker compose -f docker-compose.dev.yml ps --status running 2>/dev/null | grep -q postgres; then
-  echo "Starting Postgres..."
-  docker compose -f docker-compose.dev.yml up -d --wait
-else
-  echo "Postgres already running."
-fi
+# Ensure PGlite data directory exists
+DATA_DIR="${PGLITE_DATA_DIR:-./data/pglite}"
+mkdir -p "$DATA_DIR"
+echo "PGlite data directory: $DATA_DIR"
 
 # Install deps if needed
 if [ ! -d node_modules ]; then
