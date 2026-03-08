@@ -74,7 +74,7 @@ export function KanbanCard({ task, onClick }: KanbanCardProps) {
         >
           <div className="flex items-center gap-1.5">
             {task.isFocus && (
-              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 shrink-0" />
+              <Star className="h-3 w-3 fill-[var(--focus-star)] text-[var(--focus-star)] shrink-0" />
             )}
             <span
               className={cn(

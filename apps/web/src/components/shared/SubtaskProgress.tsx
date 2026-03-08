@@ -16,7 +16,7 @@ export function SubtaskProgress({ done, total, className }: SubtaskProgressProps
           className={cn(
             "h-full rounded-full transition-all duration-300",
             percentage === 100
-              ? "bg-green-500"
+              ? "bg-[var(--progress-complete)]"
               : percentage > 0
                 ? "bg-primary"
                 : "bg-transparent"

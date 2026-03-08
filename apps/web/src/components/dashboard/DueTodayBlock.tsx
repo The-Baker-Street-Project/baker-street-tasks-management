@@ -14,7 +14,7 @@ export function DueTodayBlock({ tasks, onToggleComplete }: DueTodayBlockProps) {
       title="Due Today"
       count={tasks.length}
       viewAllHref="/tasks?view=all&sort=due_date"
-      icon={<Calendar className="h-4 w-4 text-orange-500" />}
+      icon={<Calendar className="h-4 w-4 text-[var(--date-today)]" />}
       emptyMessage="Nothing due today"
     >
       {tasks.map((task) => (

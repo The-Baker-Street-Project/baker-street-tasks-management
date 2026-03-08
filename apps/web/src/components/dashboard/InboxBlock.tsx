@@ -14,7 +14,7 @@ export function InboxBlock({ tasks, onToggleComplete }: InboxBlockProps) {
       title="Inbox"
       count={tasks.length}
       viewAllHref="/tasks?view=inbox"
-      icon={<Inbox className="h-4 w-4 text-gray-500" />}
+      icon={<Inbox className="h-4 w-4 text-[var(--status-inbox)]" />}
       emptyMessage="Inbox is empty"
     >
       {tasks.map((task) => (

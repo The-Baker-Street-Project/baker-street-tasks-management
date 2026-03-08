@@ -9,7 +9,7 @@ export function AiBadge({ className }: AiBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-full bg-violet-100 px-1.5 py-0 text-[10px] font-medium text-violet-700 dark:bg-violet-900 dark:text-violet-300",
+        "inline-flex items-center gap-0.5 rounded-full bg-[var(--ai-badge-bg)] px-1.5 py-0 text-[10px] font-medium text-[var(--ai-badge)]",
         className
       )}
     >

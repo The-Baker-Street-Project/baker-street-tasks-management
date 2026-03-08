@@ -14,7 +14,7 @@ export function OverdueBlock({ tasks, onToggleComplete }: OverdueBlockProps) {
       title="Overdue"
       count={tasks.length}
       viewAllHref="/tasks?view=all&sort=due_date"
-      icon={<AlertTriangle className="h-4 w-4 text-red-500" />}
+      icon={<AlertTriangle className="h-4 w-4 text-[var(--date-overdue)]" />}
       emptyMessage="No overdue tasks"
     >
       {tasks.map((task) => (

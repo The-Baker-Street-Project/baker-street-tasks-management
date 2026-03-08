@@ -3,10 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import type { Priority } from "@/types";
 
 const PRIORITY_STYLES: Record<Priority, string> = {
-  P0: "text-red-600 bg-red-50 border-red-200 dark:text-red-400 dark:bg-red-950 dark:border-red-800",
-  P1: "text-orange-600 bg-orange-50 border-orange-200 dark:text-orange-400 dark:bg-orange-950 dark:border-orange-800",
-  P2: "text-blue-600 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-950 dark:border-blue-800",
-  P3: "text-gray-600 bg-gray-50 border-gray-200 dark:text-gray-400 dark:bg-gray-900 dark:border-gray-800",
+  P0: "text-[var(--priority-p0)] bg-[var(--priority-p0-bg)] border-[var(--priority-p0-border)]",
+  P1: "text-[var(--priority-p1)] bg-[var(--priority-p1-bg)] border-[var(--priority-p1-border)]",
+  P2: "text-[var(--priority-p2)] bg-[var(--priority-p2-bg)] border-[var(--priority-p2-border)]",
+  P3: "text-[var(--priority-p3)] bg-[var(--priority-p3-bg)] border-[var(--priority-p3-border)]",
 };
 
 const PRIORITY_LABELS: Record<Priority, string> = {

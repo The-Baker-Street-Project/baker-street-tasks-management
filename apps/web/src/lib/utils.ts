@@ -42,21 +42,21 @@ export function priorityLabel(priority: string): string {
 
 export function priorityColor(priority: string): string {
   const map: Record<string, string> = {
-    P0: "text-red-600 bg-red-50 border-red-200",
-    P1: "text-orange-600 bg-orange-50 border-orange-200",
-    P2: "text-blue-600 bg-blue-50 border-blue-200",
-    P3: "text-gray-600 bg-gray-50 border-gray-200",
+    P0: "text-[var(--priority-p0)] bg-[var(--priority-p0-bg)] border-[var(--priority-p0-border)]",
+    P1: "text-[var(--priority-p1)] bg-[var(--priority-p1-bg)] border-[var(--priority-p1-border)]",
+    P2: "text-[var(--priority-p2)] bg-[var(--priority-p2-bg)] border-[var(--priority-p2-border)]",
+    P3: "text-[var(--priority-p3)] bg-[var(--priority-p3-bg)] border-[var(--priority-p3-border)]",
   };
-  return map[priority] ?? "text-gray-600 bg-gray-50 border-gray-200";
+  return map[priority] ?? "text-[var(--priority-p3)] bg-[var(--priority-p3-bg)] border-[var(--priority-p3-border)]";
 }
 
 export function statusColor(status: string): string {
   const map: Record<string, string> = {
-    Inbox: "text-gray-700 bg-gray-100",
-    Active: "text-blue-700 bg-blue-100",
-    Someday: "text-purple-700 bg-purple-100",
-    Done: "text-green-700 bg-green-100",
-    Archived: "text-gray-500 bg-gray-50",
+    Inbox: "text-[var(--status-inbox)] bg-[var(--status-inbox-bg)]",
+    Active: "text-[var(--status-active)] bg-[var(--status-active-bg)]",
+    Someday: "text-[var(--status-someday)] bg-[var(--status-someday-bg)]",
+    Done: "text-[var(--status-done)] bg-[var(--status-done-bg)]",
+    Archived: "text-[var(--status-archived)] bg-[var(--status-archived-bg)]",
   };
-  return map[status] ?? "text-gray-700 bg-gray-100";
+  return map[status] ?? "text-[var(--status-inbox)] bg-[var(--status-inbox-bg)]";
 }

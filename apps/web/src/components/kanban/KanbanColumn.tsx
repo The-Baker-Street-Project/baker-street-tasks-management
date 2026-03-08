@@ -16,9 +16,10 @@ interface KanbanColumnProps {
 }
 
 const COLUMN_STYLES: Record<string, string> = {
-  Inbox: "border-t-gray-400",
-  Active: "border-t-blue-500",
-  Done: "border-t-green-500",
+  Inbox: "border-t-[var(--status-inbox)]",
+  Active: "border-t-[var(--status-active)]",
+  Someday: "border-t-[var(--status-someday)]",
+  Done: "border-t-[var(--status-done)]",
 };
 
 export function KanbanColumn({
