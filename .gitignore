@@ -10,3 +10,6 @@ dist/
 coverage/
 *.log
 data/
+
+# WSL/Windows Zone.Identifier artifacts
+*:Zone.Identifier

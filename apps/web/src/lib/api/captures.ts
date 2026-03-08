@@ -7,7 +7,7 @@ import {
   tags,
   tasks,
 } from "@baker-street/db/schema";
-import { eq, and, or, ilike, asc, desc, ne } from "drizzle-orm";
+import { eq, and, or, ilike, desc, ne } from "drizzle-orm";
 import type { Capture, CaptureStatus, Context, Source } from "@/types";
 
 function getDb() {

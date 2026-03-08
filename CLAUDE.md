@@ -17,9 +17,11 @@ AI-first single-user task management and capture system. pnpm monorepo with Next
 | `pnpm dev` | Initialize PGlite data dir + run migrations + seed + start all services |
 | `pnpm build` | Build all packages via Turbo |
 | `pnpm lint` | Lint all packages |
+| `pnpm typecheck` | Run `tsc --noEmit` across all packages |
 | `pnpm db:migrate` | Run Drizzle migrations |
 | `pnpm db:seed` | Seed system views (idempotent) |
 | `pnpm db:studio` | Open Drizzle Studio (DB browser) |
+| `scripts/deploy.sh [standalone\|extension]` | Build Docker image + deploy to k3s (`--skip-build`, `--image TAG`) |
 
 ## Architecture
 
@@ -63,6 +65,13 @@ packages/mcp-server/src/
 - **Audit trail**: Every AI action recorded with before/after snapshots in `audit_log`
 - **Idempotency**: MCP tools accept `request_id`; duplicates return cached result from audit log
 - **Soft deletes**: Status enums (Done/Archived) instead of hard deletes
+
+## Quality Gates
+
+- **Lint and typecheck MUST pass before every commit** — enforced by Husky pre-commit hook
+- **All lint warnings and type errors are must-fix** — no `@ts-ignore`, `eslint-disable`, or suppressions without an explanatory comment justifying why
+- Warnings in `components/ui/` (shadcn/ui generated code) are exempt
+- Pre-commit runs: `pnpm lint` then `pnpm typecheck`
 
 ## Code Style
 
