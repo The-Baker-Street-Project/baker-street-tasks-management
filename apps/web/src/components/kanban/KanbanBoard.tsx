@@ -16,6 +16,7 @@ import {
 import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
@@ -193,7 +194,7 @@ export function KanbanBoard({ tasks, onRefresh }: KanbanBoardProps) {
           });
           onRefresh();
         } catch {
-          // Revert on failure
+          toast.error("Failed to move task");
           onRefresh();
         }
       });

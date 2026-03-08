@@ -22,6 +22,7 @@ import {
   Home,
   Briefcase,
 } from "lucide-react";
+import { toast } from "sonner";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { PriorityIndicator } from "@/components/shared/PriorityIndicator";
 import { createTask } from "@/lib/api/tasks";
@@ -75,8 +76,9 @@ export function TaskCreateDialog({
         reset();
         onOpenChange(false);
         onCreated();
+        toast.success("Task created");
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to create task");
       }
     });
   };

@@ -9,6 +9,7 @@ import {
   Circle,
   Bot,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,7 +57,7 @@ export function SubtasksPanel({
         setNewTitle("");
         onRefresh();
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to add subtask");
       }
     });
   };
@@ -67,7 +68,7 @@ export function SubtasksPanel({
         await toggleSubtask(subtask.id, !subtask.done);
         onRefresh();
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to update subtask");
       }
     });
   };
@@ -78,7 +79,7 @@ export function SubtasksPanel({
         await deleteSubtask(subtaskId);
         onRefresh();
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to delete subtask");
       }
     });
   };

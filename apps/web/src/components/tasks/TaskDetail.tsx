@@ -12,6 +12,7 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/utils/dates";
 import { Button } from "@/components/ui/button";
@@ -103,7 +104,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
           await updateTask(task.id, { [field]: value });
           onRefresh();
         } catch {
-          // Server action not yet implemented
+          toast.error("Failed to update task");
         }
       });
     },
@@ -149,8 +150,9 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
           }
           await updateTask(task.id, { status: pendingStatus });
           onRefresh();
+          toast.success("Task completed");
         } catch {
-          // silently fail
+          toast.error("Failed to complete task");
         }
       });
       setPendingStatus(null);
@@ -198,8 +200,9 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await deleteTask(task.id);
         onClose();
         onRefresh();
+        toast.success("Task deleted");
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to delete task");
       }
     });
   };
@@ -210,7 +213,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await removeTagFromTask(task.id, tagId);
         onRefresh();
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to update tags");
       }
     });
   };
@@ -221,7 +224,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await addTagToTask(task.id, tagId);
         onRefresh();
       } catch {
-        // silently fail
+        toast.error("Failed to update tags");
       }
     });
   };

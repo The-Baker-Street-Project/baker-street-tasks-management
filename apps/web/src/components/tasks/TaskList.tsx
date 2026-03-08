@@ -8,6 +8,7 @@ import {
   ChevronDown,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -131,7 +132,7 @@ export function TaskList({
           }
           onRefresh?.();
         } catch {
-          // silently fail - real error handling deferred
+          toast.error("Failed to update task");
         }
       });
     },

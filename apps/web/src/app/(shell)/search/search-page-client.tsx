@@ -5,6 +5,7 @@ import { useQueryState } from "nuqs";
 import { Search, ListChecks, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TaskRow } from "@/components/shared/TaskRow";
+import { toast } from "sonner";
 import { searchTasks } from "@/lib/api/tasks";
 import type { Task } from "@/types";
 
@@ -24,9 +25,13 @@ export function SearchPageClient() {
       }
 
       startTransition(async () => {
-        const taskResults = await searchTasks(searchQuery);
-        setTasks(taskResults);
-        setHasSearched(true);
+        try {
+          const taskResults = await searchTasks(searchQuery);
+          setTasks(taskResults);
+          setHasSearched(true);
+        } catch {
+          toast.error("Search failed");
+        }
       });
     },
     []

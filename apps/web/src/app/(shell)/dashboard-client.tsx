@@ -9,6 +9,7 @@ import { NextUpBlock } from "@/components/dashboard/NextUpBlock";
 import { HighPriorityBlock } from "@/components/dashboard/HighPriorityBlock";
 import { InboxBlock } from "@/components/dashboard/InboxBlock";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
+import { toast } from "sonner";
 import { completeTask, reopenTask } from "@/lib/api/tasks";
 import type { Task } from "@/types";
 
@@ -43,7 +44,7 @@ export function DashboardClient({
           }
           router.refresh();
         } catch {
-          // silently fail - real error handling deferred
+          toast.error("Failed to update task");
         }
       });
     },

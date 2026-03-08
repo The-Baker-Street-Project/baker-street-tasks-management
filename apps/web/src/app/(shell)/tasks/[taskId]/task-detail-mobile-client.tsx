@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { TaskDetail } from "@/components/tasks/TaskDetail";
 import { getTask } from "@/lib/api/tasks";
@@ -25,7 +26,7 @@ export function TaskDetailMobileClient({
         setTask(updated);
       }
     } catch {
-      // Server action not yet implemented
+      toast.error("Failed to load task");
     }
   }, [task.id]);
 
