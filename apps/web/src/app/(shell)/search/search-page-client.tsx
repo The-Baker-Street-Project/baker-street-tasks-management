@@ -82,18 +82,24 @@ export function SearchPageClient() {
 
         {!hasSearched && !isPending && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Search className="h-12 w-12 text-muted-foreground/40" />
-            <p className="mt-4 text-sm text-muted-foreground">
-              Type to search across all your tasks
+            <div className="rounded-full bg-muted p-4">
+              <Search className="h-10 w-10 text-muted-foreground/40" />
+            </div>
+            <p className="mt-4 text-sm font-medium">Search your tasks</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Find tasks by title, notes, or tags
             </p>
           </div>
         )}
 
         {hasSearched && tasks.length === 0 && !isPending && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Search className="h-12 w-12 text-muted-foreground/40" />
-            <p className="mt-4 text-sm text-muted-foreground">
-              No results found for &ldquo;{query}&rdquo;
+            <div className="rounded-full bg-muted p-4">
+              <Search className="h-10 w-10 text-muted-foreground/40" />
+            </div>
+            <p className="mt-4 text-sm font-medium">No matches found</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Try different keywords for &ldquo;{query}&rdquo;
             </p>
           </div>
         )}

@@ -76,9 +76,12 @@ export function KanbanColumn({
         </SortableContext>
 
         {tasks.length === 0 && (
-          <div className="flex items-center justify-center rounded-lg border-2 border-dashed p-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Drop tasks here
+          <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-6 text-center">
+            <p className="text-xs font-medium text-muted-foreground">
+              No {status.toLowerCase()} tasks
+            </p>
+            <p className="text-[10px] text-muted-foreground/60">
+              Drag tasks here
             </p>
           </div>
         )}
