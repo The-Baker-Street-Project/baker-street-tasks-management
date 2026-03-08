@@ -473,7 +473,8 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
                 <div className="prose prose-sm dark:prose-invert max-w-none rounded-md border border-input px-3 py-2">
                   <ReactMarkdown
                     components={{
-                      a: ({ node: _node, ...props }) => (
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      a: ({ node, ...props }) => (
                         <a {...props} target="_blank" rel="noopener noreferrer" />
                       ),
                     }}
