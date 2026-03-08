@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { QueryProvider } from "@/lib/queries/providers";
+import { Toaster } from "@/components/ui/sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import "./globals.css";
 
@@ -44,6 +45,7 @@ export default function RootLayout({
           <NuqsAdapter>
             <QueryProvider>{children}</QueryProvider>
           </NuqsAdapter>
+          <Toaster richColors position="bottom-right" offset="80px" />
         </ThemeProvider>
       </body>
     </html>
