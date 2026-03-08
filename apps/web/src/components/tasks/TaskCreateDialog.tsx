@@ -22,7 +22,6 @@ import {
   Home,
   Briefcase,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { PriorityIndicator } from "@/components/shared/PriorityIndicator";
 import { createTask } from "@/lib/api/tasks";

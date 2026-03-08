@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Home, Briefcase } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { PriorityIndicator } from "@/components/shared/PriorityIndicator";
 import { promoteCapture } from "@/lib/api/captures";

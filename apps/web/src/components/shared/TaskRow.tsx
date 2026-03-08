@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Calendar } from "lucide-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PriorityIndicator } from "./PriorityIndicator";
 import { DueDateDisplay } from "./DueDateDisplay";

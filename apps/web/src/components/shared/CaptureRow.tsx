@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Pin, Calendar } from "lucide-react";
+import { Pin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { StatusBadge } from "./StatusBadge";
 import { AiBadge } from "./AiBadge";
 import { TagBadge } from "./TagBadge";
