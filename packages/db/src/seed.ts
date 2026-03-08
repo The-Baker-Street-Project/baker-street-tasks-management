@@ -32,6 +32,13 @@ async function seed() {
       sortOrder: 2,
       filterDefinition: { status: ["Active"] },
     },
+    {
+      name: "Someday",
+      type: "Tasks",
+      isSystem: true,
+      sortOrder: 3,
+      filterDefinition: { status: ["Someday"] },
+    },
   ]);
 
   console.log("Seed complete.");

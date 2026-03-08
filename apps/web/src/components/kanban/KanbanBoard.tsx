@@ -28,7 +28,7 @@ interface KanbanBoardProps {
   onRefresh: () => void;
 }
 
-const COLUMNS: TaskStatus[] = ["Inbox", "Active", "Done"];
+const COLUMNS: TaskStatus[] = ["Inbox", "Active", "Someday", "Done"];
 
 export function KanbanBoard({ tasks, onRefresh }: KanbanBoardProps) {
   const router = useRouter();
