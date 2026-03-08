@@ -1,7 +1,7 @@
 import { auditLog } from "@baker-street/db/schema";
 import type { Database } from "@baker-street/db/client";
 
-export type EntityType = "task" | "subtask" | "capture" | "tag" | "saved_view";
+export type EntityType = "task" | "subtask" | "tag" | "saved_view";
 
 export interface AuditEntry {
   entityType: EntityType;

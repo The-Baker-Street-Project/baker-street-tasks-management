@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, sql } from "drizzle-orm";
-import { tags, taskTags, captureTags } from "@baker-street/db/schema";
+import { tags, taskTags } from "@baker-street/db/schema";
 import type { Database } from "@baker-street/db/client";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { checkIdempotency } from "../services/idempotency";
@@ -27,11 +27,10 @@ export function registerTagTools(server: McpServer, db: Database) {
     "tags.list",
     "List all tags with optional usage counts",
     {
-      include_counts: z.boolean().optional().describe("Include task/capture usage counts"),
+      include_counts: z.boolean().optional().describe("Include task usage counts"),
     },
     async (params) => {
       if (params.include_counts) {
-        // Query tags with count of associated tasks and captures
         const rows = await db
           .select({
             id: tags.id,
@@ -39,7 +38,6 @@ export function registerTagTools(server: McpServer, db: Database) {
             color: tags.color,
             createdAt: tags.createdAt,
             taskCount: sql<number>`(SELECT count(*) FROM task_tags WHERE task_tags.tag_id = ${tags.id})`.as("task_count"),
-            captureCount: sql<number>`(SELECT count(*) FROM capture_tags WHERE capture_tags.tag_id = ${tags.id})`.as("capture_count"),
           })
           .from(tags)
           .orderBy(tags.name);
@@ -165,16 +163,6 @@ export function registerTagTools(server: McpServer, db: Database) {
       `);
       // Delete remaining duplicates
       await db.delete(taskTags).where(eq(taskTags.tagId, params.source_tag_id));
-
-      // Reassign capture_tags similarly
-      await db.execute(sql`
-        UPDATE capture_tags SET tag_id = ${params.target_tag_id}
-        WHERE tag_id = ${params.source_tag_id}
-        AND capture_id NOT IN (
-          SELECT capture_id FROM capture_tags WHERE tag_id = ${params.target_tag_id}
-        )
-      `);
-      await db.delete(captureTags).where(eq(captureTags.tagId, params.source_tag_id));
 
       // Delete the source tag
       await db.delete(tags).where(eq(tags.id, params.source_tag_id));

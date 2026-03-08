@@ -6,7 +6,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { checkIdempotency } from "../services/idempotency";
 import { logAudit } from "../services/audit-logger";
 
-const savedViewTypeValues = ["Tasks", "Captures", "KanbanLane"] as const;
+const savedViewTypeValues = ["Tasks", "KanbanLane"] as const;
 
 const aiMetaParams = {
   agent_id: z.string().optional().describe("Identifier of the AI agent"),

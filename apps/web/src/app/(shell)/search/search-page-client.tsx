@@ -2,20 +2,16 @@
 
 import { useState, useEffect, useTransition, useCallback } from "react";
 import { useQueryState } from "nuqs";
-import { Search, ListChecks, Inbox, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Search, ListChecks, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { TaskRow } from "@/components/shared/TaskRow";
-import { CaptureRow } from "@/components/shared/CaptureRow";
 import { searchTasks } from "@/lib/api/tasks";
-import { searchCaptures } from "@/lib/api/captures";
-import type { Task, Capture } from "@/types";
+import type { Task } from "@/types";
 
 export function SearchPageClient() {
   const [query, setQuery] = useQueryState("q", { defaultValue: "" });
   const [inputValue, setInputValue] = useState(query);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [captures, setCaptures] = useState<Capture[]>([]);
   const [isPending, startTransition] = useTransition();
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -23,18 +19,13 @@ export function SearchPageClient() {
     (searchQuery: string) => {
       if (!searchQuery.trim()) {
         setTasks([]);
-        setCaptures([]);
         setHasSearched(false);
         return;
       }
 
       startTransition(async () => {
-        const [taskResults, captureResults] = await Promise.all([
-          searchTasks(searchQuery),
-          searchCaptures(searchQuery),
-        ]);
+        const taskResults = await searchTasks(searchQuery);
         setTasks(taskResults);
-        setCaptures(captureResults);
         setHasSearched(true);
       });
     },
@@ -60,14 +51,12 @@ export function SearchPageClient() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const totalResults = tasks.length + captures.length;
-
   return (
     <div className="h-full overflow-auto">
       <div className="border-b px-4 py-3">
         <h1 className="text-xl font-semibold">Search</h1>
         <p className="text-sm text-muted-foreground">
-          Search across tasks and captures
+          Search across your tasks
         </p>
       </div>
 
@@ -77,7 +66,7 @@ export function SearchPageClient() {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Search tasks and captures..."
+            placeholder="Search tasks..."
             className="pl-10"
             autoFocus
           />
@@ -90,12 +79,12 @@ export function SearchPageClient() {
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Search className="h-12 w-12 text-muted-foreground/40" />
             <p className="mt-4 text-sm text-muted-foreground">
-              Type to search across all your tasks and captures
+              Type to search across all your tasks
             </p>
           </div>
         )}
 
-        {hasSearched && totalResults === 0 && !isPending && (
+        {hasSearched && tasks.length === 0 && !isPending && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Search className="h-12 w-12 text-muted-foreground/40" />
             <p className="mt-4 text-sm text-muted-foreground">
@@ -119,28 +108,6 @@ export function SearchPageClient() {
                   task={task}
                   href={`/tasks?taskId=${task.id}`}
                 />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {captures.length > 0 && (
-          <div>
-            <div className="mb-2 flex items-center gap-2 px-1">
-              <Inbox className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-sm font-medium">
-                Captures ({captures.length})
-              </h2>
-            </div>
-            <div className="divide-y rounded-lg border">
-              {captures.map((capture) => (
-                <Link
-                  key={capture.id}
-                  href={`/captures?captureId=${capture.id}`}
-                  className="block"
-                >
-                  <CaptureRow capture={capture} />
-                </Link>
               ))}
             </div>
           </div>

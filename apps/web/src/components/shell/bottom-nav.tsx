@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ListChecks,
-  Inbox,
   Columns3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,6 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
-  { href: "/captures", label: "Captures", icon: Inbox },
   { href: "/kanban", label: "Kanban", icon: Columns3 },
 ];
 

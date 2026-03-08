@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   ListChecks,
-  Inbox,
   Columns3,
   Search,
   Settings,
@@ -31,7 +30,6 @@ import type { SavedView, Tag } from "@/types";
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
-  { href: "/captures", label: "Captures", icon: Inbox },
   { href: "/kanban", label: "Kanban", icon: Columns3 },
   { href: "/search", label: "Search", icon: Search },
   { href: "/settings", label: "Settings", icon: Settings },

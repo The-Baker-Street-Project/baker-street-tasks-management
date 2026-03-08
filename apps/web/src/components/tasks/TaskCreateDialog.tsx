@@ -139,7 +139,7 @@ export function TaskCreateDialog({
                       size="sm"
                       className="w-full justify-between"
                     >
-                      <StatusBadge status={status} type="task" />
+                      <StatusBadge status={status} />
                       <ChevronDown className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -150,7 +150,7 @@ export function TaskCreateDialog({
                         onClick={() => setStatus(s)}
                         className="cursor-pointer"
                       >
-                        <StatusBadge status={s} type="task" className="mr-2" />
+                        <StatusBadge status={s} className="mr-2" />
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

@@ -231,7 +231,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <StatusBadge status={status} type="task" />
+          <StatusBadge status={status} />
           {isPending && (
             <span className="text-xs text-muted-foreground">Saving...</span>
           )}
@@ -282,7 +282,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
                       onClick={() => handleStatusChange(s)}
                       className={cn("cursor-pointer", status === s && "font-semibold")}
                     >
-                      <StatusBadge status={s} type="task" className="mr-2" />
+                      <StatusBadge status={s} className="mr-2" />
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

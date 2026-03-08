@@ -64,16 +64,6 @@ export function registerSystemTools(server: McpServer, db: Database) {
           { name: "subtasks.add", description: "Add a subtask to a task" },
           { name: "subtasks.toggle", description: "Toggle a subtask done/undone" },
           { name: "subtasks.reorder", description: "Reorder a subtask among siblings" },
-          // Captures
-          { name: "captures.create", description: "Create a new capture" },
-          { name: "captures.get", description: "Get a capture by ID" },
-          { name: "captures.update", description: "Update fields on a capture" },
-          { name: "captures.pin", description: "Pin a capture" },
-          { name: "captures.unpin", description: "Unpin a capture" },
-          { name: "captures.review", description: "Mark a capture as reviewed" },
-          { name: "captures.archive", description: "Archive a capture" },
-          { name: "captures.promote_to_task", description: "Convert a capture into a task" },
-          { name: "captures.extract_tasks", description: "Extract multiple tasks from a capture" },
           // Tags
           { name: "tags.list", description: "List all tags" },
           { name: "tags.create", description: "Create a new tag" },

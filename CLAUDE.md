@@ -1,6 +1,6 @@
 # Baker Street Tasks
 
-AI-first single-user task management and capture system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on PGlite (in-process WASM Postgres).
+AI-first single-user task management system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on PGlite (in-process WASM Postgres).
 
 ## Packages
 
@@ -8,7 +8,7 @@ AI-first single-user task management and capture system. pnpm monorepo with Next
 |---------|------|-------------|
 | `web` | `apps/web` | Next.js 15 App Router frontend (React 19, Tailwind 4, shadcn/ui) |
 | `@baker-street/db` | `packages/db` | Drizzle ORM schema, migrations, queries, seed |
-| `@baker-street/mcp-server` | `packages/mcp-server` | Express 5 MCP server (34 tools, HTTP transport) |
+| `@baker-street/mcp-server` | `packages/mcp-server` | Express 5 MCP server (25 tools, HTTP transport) |
 
 ## Commands
 
@@ -29,7 +29,6 @@ AI-first single-user task management and capture system. pnpm monorepo with Next
 apps/web/src/
   app/(shell)/          # All pages behind shell layout (sidebar + nav)
     tasks/              # Task list + detail views
-    captures/           # Capture vault
     kanban/             # Kanban board (drag-and-drop)
     search/             # Global search
     settings/           # Settings page
@@ -38,19 +37,18 @@ apps/web/src/
     shell/              # Layout: sidebar, bottom nav, context toggle
     dashboard/          # Dashboard blocks (overdue, due today, inbox, etc.)
     tasks/              # Task list, row, detail, subtasks
-    captures/           # Capture list, row, detail
     kanban/             # Board, swimlane, card
     shared/             # Confirm dialog, tag selector
   lib/
     api/                # Server actions ("use server") — all DB access
     queries/            # TanStack Query keys and hooks
-    types/              # Canonical TypeScript types (Task, Capture, etc.)
+    types/              # Canonical TypeScript types (Task, etc.)
 packages/db/src/
   schema/               # Drizzle table definitions, enums, relations
   queries/              # Reusable query helpers
   client.ts             # Singleton Drizzle client factory
 packages/mcp-server/src/
-  tools/                # 34 MCP tools organized by domain
+  tools/                # 25 MCP tools organized by domain
   services/             # Audit logger, idempotency checker
   middleware/           # Auth (bearer token), rate limiting
 ```
@@ -101,7 +99,7 @@ Generated automatically by `scripts/dev.sh` on first run:
 - **Dark mode colors**: Always pair light/dark variants (e.g., `border-yellow-300 dark:border-yellow-700`), never use hardcoded light-only colors
 - **No auth in v1**: Single API key for everything. No user sessions or login flow yet
 - **Subtask auto-complete**: Completing a parent task with incomplete subtasks triggers a warning; on confirm, all subtasks are auto-marked done
-- **Virtual scrolling**: TaskList uses `@tanstack/react-virtual`; CaptureList is not yet virtualized
+- **Virtual scrolling**: TaskList uses `@tanstack/react-virtual`
 - **PGlite single-writer**: Only one process can open a PGlite data directory at a time. In dev, web and mcp-server use separate data dirs. In production K8s, a unified server.ts runs both in one process
 
 ## Deployment (K8s)
@@ -124,7 +122,7 @@ kubectl -n baker-street port-forward svc/baker-street 3000:3000 3100:3100
 
 ## Baker Street Extension
 
-The MCP server can register as a Baker Street platform extension. When `NATS_URL` is set, it announces itself on NATS and heartbeats every 30s. The Brain auto-discovers all 34 task management tools.
+The MCP server can register as a Baker Street platform extension. When `NATS_URL` is set, it announces itself on NATS and heartbeats every 30s. The Brain auto-discovers all 25 task management tools.
 
 Deploy to the `bakerst` namespace:
 ```bash

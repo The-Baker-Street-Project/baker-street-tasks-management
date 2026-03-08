@@ -92,7 +92,7 @@ export function SettingsPageClient({ initialTags }: SettingsPageClientProps) {
               Tags
             </CardTitle>
             <CardDescription>
-              Create and manage tags to organize your tasks and captures
+              Create and manage tags to organize your tasks
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

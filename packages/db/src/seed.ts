@@ -32,13 +32,6 @@ async function seed() {
       sortOrder: 2,
       filterDefinition: { status: ["Active"] },
     },
-    {
-      name: "All Captures",
-      type: "Captures",
-      isSystem: true,
-      sortOrder: 0,
-      filterDefinition: { status: ["Captured", "Reviewed"] },
-    },
   ]);
 
   console.log("Seed complete.");

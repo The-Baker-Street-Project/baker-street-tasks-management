@@ -14,9 +14,6 @@ const TOOLS = [
   "tasks.complete", "tasks.reopen", "tasks.search", "tasks.move_status",
   "tasks.bulk_update",
   "subtasks.add", "subtasks.toggle", "subtasks.reorder",
-  "captures.create", "captures.get", "captures.update", "captures.pin",
-  "captures.unpin", "captures.review", "captures.archive",
-  "captures.promote_to_task", "captures.extract_tasks",
   "tags.list", "tags.create", "tags.rename", "tags.merge",
   "views.list", "views.create", "views.update",
   "audit.list", "audit.get",
@@ -57,11 +54,11 @@ export async function startExtension(): Promise<void> {
       name: "Baker Street Tasks",
       version: "0.1.0",
       description:
-        "Task management — create, update, search, and organize tasks and captures",
+        "Task management — create, update, search, and organize tasks",
       mcpUrl,
       transport: "streamable-http",
       tools: TOOLS,
-      tags: ["tasks", "captures", "productivity"],
+      tags: ["tasks", "productivity"],
     };
 
     nc.publish(EXTENSION_ANNOUNCE, sc.encode(JSON.stringify(announce)));

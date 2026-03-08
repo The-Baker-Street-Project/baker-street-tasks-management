@@ -4,7 +4,7 @@ import { auditLog } from "@baker-street/db/schema";
 import type { Database } from "@baker-street/db/client";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-const entityTypeValues = ["task", "subtask", "capture", "tag", "saved_view"] as const;
+const entityTypeValues = ["task", "subtask", "tag", "saved_view"] as const;
 
 // ── register ────────────────────────────────────────────────────────
 

@@ -6,10 +6,9 @@ import {
   getHighPriorityTasks,
   getFocusTasks,
 } from "@/lib/api/tasks";
-import { getPinnedCaptures } from "@/lib/api/captures";
 
 export default async function DashboardPage() {
-  const [overdue, dueToday, nextUp, highPriority, inbox, focus, pinnedCaptures] =
+  const [overdue, dueToday, nextUp, highPriority, inbox, focus] =
     await Promise.all([
       getOverdueTasks(),
       getDueTodayTasks(),
@@ -17,7 +16,6 @@ export default async function DashboardPage() {
       getHighPriorityTasks(),
       getTasks({ status: ["Inbox"] }).then((t) => t.slice(0, 5)),
       getFocusTasks(),
-      getPinnedCaptures(),
     ]);
 
   return (
@@ -36,7 +34,6 @@ export default async function DashboardPage() {
         highPriority={highPriority}
         inbox={inbox}
         focus={focus}
-        pinnedCaptures={pinnedCaptures}
       />
     </div>
   );

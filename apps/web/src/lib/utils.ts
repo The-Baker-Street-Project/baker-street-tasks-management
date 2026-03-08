@@ -57,8 +57,6 @@ export function statusColor(status: string): string {
     Someday: "text-purple-700 bg-purple-100",
     Done: "text-green-700 bg-green-100",
     Archived: "text-gray-500 bg-gray-50",
-    Captured: "text-yellow-700 bg-yellow-100",
-    Reviewed: "text-teal-700 bg-teal-100",
   };
   return map[status] ?? "text-gray-700 bg-gray-100";
 }
