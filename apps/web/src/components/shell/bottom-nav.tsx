@@ -6,13 +6,17 @@ import {
   LayoutDashboard,
   ListChecks,
   Columns3,
+  Search,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/", label: "Home", icon: LayoutDashboard },
   { href: "/tasks", label: "Tasks", icon: ListChecks },
   { href: "/kanban", label: "Kanban", icon: Columns3 },
+  { href: "/search", label: "Search", icon: Search },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 export function BottomNav() {
@@ -30,7 +34,7 @@ export function BottomNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-col items-center gap-1 px-3 py-1 text-xs transition-colors",
+              "flex flex-col items-center justify-center gap-0.5 min-h-[44px] min-w-[44px] px-2 py-2 text-[10px] transition-colors",
               isActive
                 ? "text-primary"
                 : "text-muted-foreground hover:text-foreground"
