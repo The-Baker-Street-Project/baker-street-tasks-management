@@ -9,6 +9,7 @@ interface DashboardBlockProps {
   viewAllHref?: string;
   icon?: React.ReactNode;
   emptyMessage?: string;
+  emptyIcon?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
@@ -19,6 +20,7 @@ export function DashboardBlock({
   viewAllHref,
   icon,
   emptyMessage = "Nothing here",
+  emptyIcon,
   children,
   className,
 }: DashboardBlockProps) {
@@ -28,7 +30,7 @@ export function DashboardBlock({
     (children as React.ReactElement & { props?: { children?: unknown[] } })?.props?.children?.length === 0;
 
   return (
-    <Card className={cn("flex flex-col", className)}>
+    <Card className={cn("flex flex-col shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4">
         <div className="flex items-center gap-2">
           {icon}
@@ -51,9 +53,12 @@ export function DashboardBlock({
       </CardHeader>
       <CardContent className="flex-1 px-2 pb-2">
         {isEmpty ? (
-          <p className="px-2 py-4 text-center text-xs text-muted-foreground">
-            {emptyMessage}
-          </p>
+          <div className="flex flex-col items-center justify-center px-2 py-6 text-center">
+            {emptyIcon && <div className="mb-2">{emptyIcon}</div>}
+            <p className="text-xs text-muted-foreground">
+              {emptyMessage}
+            </p>
+          </div>
         ) : (
           <div className="divide-y">{children}</div>
         )}
