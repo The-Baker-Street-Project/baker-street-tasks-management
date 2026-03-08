@@ -15,8 +15,8 @@ export function DueDateDisplay({ date, className }: DueDateDisplayProps) {
     <span
       className={cn(
         "inline-flex items-center gap-1 text-xs",
-        overdue && "font-medium text-red-600 dark:text-red-400",
-        today && !overdue && "font-medium text-orange-600 dark:text-orange-400",
+        overdue && "font-medium text-[var(--date-overdue)]",
+        today && !overdue && "font-medium text-[var(--date-today)]",
         !overdue && !today && "text-muted-foreground",
         className
       )}

@@ -1,11 +1,10 @@
 // Types derived from the DB schema in @baker-street/db
 
 export type TaskStatus = "Inbox" | "Active" | "Someday" | "Done" | "Archived";
-export type CaptureStatus = "Captured" | "Reviewed" | "Archived";
 export type Context = "Home" | "Work";
 export type Priority = "P0" | "P1" | "P2" | "P3";
 export type Source = "web_ui" | "mcp";
-export type SavedViewType = "Tasks" | "Captures" | "KanbanLane";
+export type SavedViewType = "Tasks" | "KanbanLane";
 
 export interface Tag {
   id: string;
@@ -49,25 +48,6 @@ export interface Task {
   createdAt: Date;
   updatedAt: Date;
   subtasks?: Subtask[];
-  tags?: Tag[];
-}
-
-export interface Capture {
-  id: string;
-  title: string;
-  body: string | null;
-  status: CaptureStatus;
-  pinned: boolean;
-  context: Context | null;
-  source: Source;
-  nudgeAt: Date | null;
-  createdBy: Source;
-  agentId: string | null;
-  sourceMessageId: string | null;
-  requestId: string | null;
-  reason: string | null;
-  createdAt: Date;
-  updatedAt: Date;
   tags?: Tag[];
 }
 

@@ -14,7 +14,6 @@ import {
 import {
   LayoutDashboard,
   ListChecks,
-  Inbox,
   Columns3,
   Search,
   Settings,
@@ -55,10 +54,6 @@ export function CommandMenu() {
           <CommandItem onClick={() => navigate("/tasks")}>
             <ListChecks className="mr-2 h-4 w-4" />
             Tasks
-          </CommandItem>
-          <CommandItem onClick={() => navigate("/captures")}>
-            <Inbox className="mr-2 h-4 w-4" />
-            Captures
           </CommandItem>
           <CommandItem onClick={() => navigate("/kanban")}>
             <Columns3 className="mr-2 h-4 w-4" />

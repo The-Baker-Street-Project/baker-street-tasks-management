@@ -14,7 +14,7 @@ export function NextUpBlock({ tasks, onToggleComplete }: NextUpBlockProps) {
       title="Next Up"
       count={tasks.length}
       viewAllHref="/tasks?view=active"
-      icon={<ListChecks className="h-4 w-4 text-blue-500" />}
+      icon={<ListChecks className="h-4 w-4 text-[var(--status-active)]" />}
       emptyMessage="No active tasks"
     >
       {tasks.map((task) => (

@@ -1,4 +1,4 @@
-import { Calendar } from "lucide-react";
+import { Calendar, CheckCircle2 } from "lucide-react";
 import { DashboardBlock } from "./DashboardBlock";
 import { TaskRow } from "@/components/shared/TaskRow";
 import type { Task } from "@/types";
@@ -14,8 +14,9 @@ export function DueTodayBlock({ tasks, onToggleComplete }: DueTodayBlockProps) {
       title="Due Today"
       count={tasks.length}
       viewAllHref="/tasks?view=all&sort=due_date"
-      icon={<Calendar className="h-4 w-4 text-orange-500" />}
-      emptyMessage="Nothing due today"
+      icon={<Calendar className="h-4 w-4 text-[var(--date-today)]" />}
+      emptyMessage="Nothing due today — you're ahead!"
+      emptyIcon={<CheckCircle2 className="h-8 w-8 text-[var(--status-done)]" />}
     >
       {tasks.map((task) => (
         <TaskRow

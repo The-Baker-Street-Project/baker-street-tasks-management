@@ -114,7 +114,10 @@ export function TasksPageClient({
 
       {/* Right detail */}
       {currentTask && (
-        <div className="hidden md:block">
+        <div
+          key={currentTask.id}
+          className="hidden md:block motion-safe:animate-slide-in-right"
+        >
           <TaskDetail
             task={currentTask}
             allTags={tags}

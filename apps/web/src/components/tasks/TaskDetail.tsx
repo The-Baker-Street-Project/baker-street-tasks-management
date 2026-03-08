@@ -11,7 +11,12 @@ import {
   Trash2,
   X,
   ChevronDown,
+  Eye,
+  Pencil,
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/utils/dates";
 import { Button } from "@/components/ui/button";
@@ -68,6 +73,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
   const [estimate, setEstimate] = useState(
     task.estimate?.toString() ?? ""
   );
+  const [notesPreview, setNotesPreview] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSubtaskWarning, setShowSubtaskWarning] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<TaskStatus | null>(null);
@@ -87,6 +93,11 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
     setEstimate(task.estimate?.toString() ?? "");
   }, [task]);
 
+  // Reset preview mode when task changes
+  useEffect(() => {
+    setNotesPreview(false);
+  }, [task.id]);
+
   // Auto-resize textarea
   useEffect(() => {
     const el = notesRef.current;
@@ -103,7 +114,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
           await updateTask(task.id, { [field]: value });
           onRefresh();
         } catch {
-          // Server action not yet implemented
+          toast.error("Failed to update task");
         }
       });
     },
@@ -149,8 +160,9 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
           }
           await updateTask(task.id, { status: pendingStatus });
           onRefresh();
+          toast.success("Task completed");
         } catch {
-          // silently fail
+          toast.error("Failed to complete task");
         }
       });
       setPendingStatus(null);
@@ -198,8 +210,9 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await deleteTask(task.id);
         onClose();
         onRefresh();
+        toast.success("Task deleted");
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to delete task");
       }
     });
   };
@@ -210,7 +223,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await removeTagFromTask(task.id, tagId);
         onRefresh();
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to update tags");
       }
     });
   };
@@ -221,7 +234,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         await addTagToTask(task.id, tagId);
         onRefresh();
       } catch {
-        // silently fail
+        toast.error("Failed to update tags");
       }
     });
   };
@@ -231,7 +244,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <StatusBadge status={status} type="task" />
+          <StatusBadge status={status} />
           {isPending && (
             <span className="text-xs text-muted-foreground">Saving...</span>
           )}
@@ -282,7 +295,7 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
                       onClick={() => handleStatusChange(s)}
                       className={cn("cursor-pointer", status === s && "font-semibold")}
                     >
-                      <StatusBadge status={s} type="task" className="mr-2" />
+                      <StatusBadge status={s} className="mr-2" />
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -428,18 +441,62 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
 
           {/* Notes */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">
-              Notes
-            </label>
-            <textarea
-              ref={notesRef}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              onBlur={handleNotesBlur}
-              placeholder="Add notes..."
-              className="w-full min-h-[80px] resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              rows={3}
-            />
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-medium text-muted-foreground">
+                Notes
+              </label>
+              {task.notes && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => setNotesPreview(!notesPreview)}
+                      aria-label={notesPreview ? "Edit notes" : "Preview markdown"}
+                    >
+                      {notesPreview ? (
+                        <Pencil className="h-3 w-3" />
+                      ) : (
+                        <Eye className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {notesPreview ? "Edit notes" : "Preview markdown"}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
+            {notesPreview ? (
+              task.notes?.trim() ? (
+                <div className="prose prose-sm dark:prose-invert max-w-none rounded-md border border-input px-3 py-2">
+                  <ReactMarkdown
+                    components={{
+                      a: ({ node: _node, ...props }) => (
+                        <a {...props} target="_blank" rel="noopener noreferrer" />
+                      ),
+                    }}
+                  >
+                    {task.notes}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <div className="rounded-md border border-input px-3 py-2 text-sm text-muted-foreground">
+                  Add notes...
+                </div>
+              )
+            ) : (
+              <textarea
+                ref={notesRef}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                onBlur={handleNotesBlur}
+                placeholder="Add notes..."
+                className="w-full min-h-[80px] resize-none rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                rows={3}
+              />
+            )}
           </div>
 
           <Separator />

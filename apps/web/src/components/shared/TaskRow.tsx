@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Star, Calendar } from "lucide-react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { PriorityIndicator } from "./PriorityIndicator";
 import { DueDateDisplay } from "./DueDateDisplay";
@@ -52,7 +51,7 @@ export function TaskRow({
       <div className="flex flex-1 min-w-0 flex-col gap-1">
         <div className="flex items-center gap-2">
           {task.isFocus && (
-            <Star className="h-3.5 w-3.5 shrink-0 fill-yellow-400 text-yellow-400" />
+            <Star className="h-3.5 w-3.5 shrink-0 fill-[var(--focus-star)] text-[var(--focus-star)]" />
           )}
           <span
             className={cn(

@@ -13,7 +13,7 @@ export function FocusBlock({ tasks, onToggleComplete }: FocusBlockProps) {
     <DashboardBlock
       title="Focus 3"
       count={tasks.length}
-      icon={<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+      icon={<Star className="h-4 w-4 fill-[var(--focus-star)] text-[var(--focus-star)]" />}
       emptyMessage="No focused tasks"
     >
       {tasks.map((task) => (

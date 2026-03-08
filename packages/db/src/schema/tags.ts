@@ -6,7 +6,6 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { tasks } from "./tasks";
-import { captures } from "./captures";
 
 export const tags = pgTable(
   "tags",
@@ -36,17 +35,3 @@ export const taskTags = pgTable(
   ]
 );
 
-export const captureTags = pgTable(
-  "capture_tags",
-  {
-    captureId: uuid("capture_id")
-      .notNull()
-      .references(() => captures.id, { onDelete: "cascade" }),
-    tagId: uuid("tag_id")
-      .notNull()
-      .references(() => tags.id, { onDelete: "cascade" }),
-  },
-  (table) => [
-    uniqueIndex("capture_tags_unique_idx").on(table.captureId, table.tagId),
-  ]
-);

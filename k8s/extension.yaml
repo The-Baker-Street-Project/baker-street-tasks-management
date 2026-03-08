@@ -1,0 +1,133 @@
+# Baker Street Tasks as a Baker Street platform extension.
+# Deploy to the bakerst namespace so the Brain can discover it.
+#
+# Prerequisites:
+#   - Baker Street platform running in bakerst namespace
+#   - NATS accessible at nats.bakerst.svc.cluster.local:4222
+#   - Image built: docker build -f apps/web/Dockerfile -t baker-street-tasks:latest .
+#
+# Usage:
+#   kubectl apply -f k8s/extension.yaml
+#   kubectl -n bakerst logs deployment/ext-baker-street-tasks -f
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ext-baker-street-tasks
+  namespace: bakerst
+  labels:
+    app: bakerst-extension
+    extension: baker-street-tasks
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: bakerst-extension
+      extension: baker-street-tasks
+  template:
+    metadata:
+      labels:
+        app: bakerst-extension
+        extension: baker-street-tasks
+    spec:
+      containers:
+        - name: baker-street-tasks
+          image: baker-street-tasks:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mcp
+              containerPort: 8080
+          env:
+            - name: MCP_PORT
+              value: "8080"
+            - name: PORT
+              value: "8080"
+            - name: NATS_URL
+              value: nats://nats.bakerst.svc.cluster.local:4222
+            - name: EXTENSION_MCP_URL
+              value: http://ext-baker-street-tasks.bakerst.svc.cluster.local:8080/mcp
+            - name: PGLITE_DATA_DIR
+              value: /data/pglite
+            - name: MCP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: baker-street-tasks-secrets
+                  key: MCP_API_KEY
+          volumeMounts:
+            - name: pglite-data
+              mountPath: /data/pglite
+            - name: tmp
+              mountPath: /tmp
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 200m
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+      volumes:
+        - name: pglite-data
+          persistentVolumeClaim:
+            claimName: baker-street-tasks-pglite
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: baker-street-tasks-pglite
+  namespace: bakerst
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ext-baker-street-tasks
+  namespace: bakerst
+spec:
+  selector:
+    app: bakerst-extension
+    extension: baker-street-tasks
+  ports:
+    - name: mcp
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: baker-street-tasks-secrets
+  namespace: bakerst
+type: Opaque
+stringData:
+  MCP_API_KEY: REPLACE_ME_WITH_REAL_KEY

@@ -9,3 +9,7 @@ dist/
 .DS_Store
 coverage/
 *.log
+data/
+
+# WSL/Windows Zone.Identifier artifacts
+*:Zone.Identifier

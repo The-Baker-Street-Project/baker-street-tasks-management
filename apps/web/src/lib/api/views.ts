@@ -12,7 +12,7 @@ function getDb() {
 export async function getSavedViews(type?: string): Promise<SavedView[]> {
   const db = getDb();
 
-  const conditions = type ? eq(savedViews.type, type as "Tasks" | "Captures" | "KanbanLane") : undefined;
+  const conditions = type ? eq(savedViews.type, type as "Tasks" | "KanbanLane") : undefined;
 
   const rows = await db.query.savedViews.findMany({
     where: conditions,

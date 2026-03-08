@@ -14,7 +14,7 @@ export function HighPriorityBlock({ tasks, onToggleComplete }: HighPriorityBlock
       title="High Priority"
       count={tasks.length}
       viewAllHref="/tasks?view=all&sort=priority"
-      icon={<Flame className="h-4 w-4 text-orange-500" />}
+      icon={<Flame className="h-4 w-4 text-[var(--priority-p1)]" />}
       emptyMessage="No high priority tasks"
     >
       {tasks.map((task) => (

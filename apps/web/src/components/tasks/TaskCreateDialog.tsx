@@ -22,7 +22,7 @@ import {
   Home,
   Briefcase,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { PriorityIndicator } from "@/components/shared/PriorityIndicator";
 import { createTask } from "@/lib/api/tasks";
@@ -76,8 +76,9 @@ export function TaskCreateDialog({
         reset();
         onOpenChange(false);
         onCreated();
+        toast.success("Task created");
       } catch {
-        // Server action not yet implemented
+        toast.error("Failed to create task");
       }
     });
   };
@@ -140,7 +141,7 @@ export function TaskCreateDialog({
                       size="sm"
                       className="w-full justify-between"
                     >
-                      <StatusBadge status={status} type="task" />
+                      <StatusBadge status={status} />
                       <ChevronDown className="h-3 w-3" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -151,7 +152,7 @@ export function TaskCreateDialog({
                         onClick={() => setStatus(s)}
                         className="cursor-pointer"
                       >
-                        <StatusBadge status={s} type="task" className="mr-2" />
+                        <StatusBadge status={s} className="mr-2" />
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>

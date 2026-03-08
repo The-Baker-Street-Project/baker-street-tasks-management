@@ -1,7 +1,6 @@
 // Re-export all types from the canonical location
 export type {
   TaskStatus,
-  CaptureStatus,
   Context,
   Priority,
   Source,
@@ -9,7 +8,6 @@ export type {
   Tag,
   Subtask,
   Task,
-  Capture,
   SavedView,
 } from "@/types";
 

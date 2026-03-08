@@ -1,2 +1,2 @@
 export * from "./schema/index";
-export { createDb, type Database } from "./client";
+export { createDb, getPgliteClient, type Database } from "./client";

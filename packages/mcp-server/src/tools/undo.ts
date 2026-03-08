@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { eq, and, desc } from "drizzle-orm";
-import { auditLog, tasks, subtasks, captures, tags, savedViews, taskTags, captureTags } from "@baker-street/db/schema";
+import { auditLog, tasks, subtasks, tags, savedViews, taskTags } from "@baker-street/db/schema";
 import type { Database } from "@baker-street/db/client";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { logAudit, type EntityType } from "../services/audit-logger";
 
-const entityTypeValues = ["task", "subtask", "capture", "tag", "saved_view"] as const;
+const entityTypeValues = ["task", "subtask", "tag", "saved_view"] as const;
 
 const aiMetaParams = {
   agent_id: z.string().optional().describe("Identifier of the AI agent"),
@@ -36,10 +36,6 @@ async function restoreEntity(
         break;
       case "subtask":
         await db.delete(subtasks).where(eq(subtasks.id, entityId));
-        break;
-      case "capture":
-        await db.delete(captureTags).where(eq(captureTags.captureId, entityId));
-        await db.delete(captures).where(eq(captures.id, entityId));
         break;
       case "tag":
         await db.delete(tags).where(eq(tags.id, entityId));
@@ -97,31 +93,6 @@ async function restoreEntity(
         .returning();
       return { restored: true, current: updated };
     }
-    case "capture": {
-      const snap = beforeSnapshot;
-      const tagIds = (snap.tag_ids as string[] | undefined) ?? [];
-      const [updated] = await db
-        .update(captures)
-        .set({
-          title: snap.title as string,
-          body: (snap.body as string | null) ?? null,
-          status: snap.status as "Captured" | "Reviewed" | "Archived",
-          pinned: (snap.pinned as boolean) ?? false,
-          context: (snap.context as "Home" | "Work" | null) ?? null,
-          nudgeAt: snap.nudgeAt ? new Date(snap.nudgeAt as string) : null,
-          updatedAt: new Date(),
-        })
-        .where(eq(captures.id, entityId))
-        .returning();
-
-      // Restore tags
-      await db.delete(captureTags).where(eq(captureTags.captureId, entityId));
-      if (tagIds.length > 0) {
-        await db.insert(captureTags).values(tagIds.map((tagId) => ({ captureId: entityId, tagId })));
-      }
-
-      return { restored: true, current: { ...updated, tag_ids: tagIds } };
-    }
     case "tag": {
       const snap = beforeSnapshot;
       const [updated] = await db
@@ -140,7 +111,7 @@ async function restoreEntity(
         .update(savedViews)
         .set({
           name: snap.name as string,
-          type: snap.type as "Tasks" | "Captures" | "KanbanLane",
+          type: snap.type as "Tasks" | "KanbanLane",
           filterDefinition: (snap.filterDefinition as Record<string, unknown>) ?? null,
           sortOrder: (snap.sortOrder as number) ?? 0,
           isHidden: (snap.isHidden as boolean) ?? false,

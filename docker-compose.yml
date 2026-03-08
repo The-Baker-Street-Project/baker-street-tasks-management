@@ -1,46 +1,18 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    environment:
-      POSTGRES_USER: baker
-      POSTGRES_PASSWORD: baker_dev
-      POSTGRES_DB: baker_street_tasks
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U baker -d baker_street_tasks"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  mcp-server:
-    build:
-      context: .
-      dockerfile: packages/mcp-server/Dockerfile
-    ports:
-      - "3100:3100"
-    environment:
-      DATABASE_URL: postgresql://baker:baker_dev@postgres:5432/baker_street_tasks
-      MCP_API_KEY: ${MCP_API_KEY:-dev-api-key-change-me}
-      MCP_PORT: 3100
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  web:
+  baker-street:
     build:
       context: .
       dockerfile: apps/web/Dockerfile
     ports:
       - "3000:3000"
+      - "3100:3100"
     environment:
-      DATABASE_URL: postgresql://baker:baker_dev@postgres:5432/baker_street_tasks
+      PGLITE_DATA_DIR: /data/pglite
+      MCP_API_KEY: ${MCP_API_KEY:-dev-api-key-change-me}
+      MCP_PORT: 3100
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-    depends_on:
-      postgres:
-        condition: service_healthy
+    volumes:
+      - pglite-data:/data/pglite
 
 volumes:
-  pgdata:
+  pglite-data:

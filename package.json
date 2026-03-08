@@ -6,12 +6,15 @@
     "dev:services": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "test": "turbo test",
     "db:migrate": "turbo db:migrate --filter=@baker-street/db",
     "db:seed": "turbo db:seed --filter=@baker-street/db",
-    "db:studio": "turbo db:studio --filter=@baker-street/db"
+    "db:studio": "turbo db:studio --filter=@baker-street/db",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
     "turbo": "^2.4",
     "typescript": "^5.7"
   },
@@ -20,6 +23,8 @@
     "node": ">=20"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild"]
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ]
   }
 }

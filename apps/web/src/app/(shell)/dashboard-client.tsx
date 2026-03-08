@@ -9,9 +9,9 @@ import { NextUpBlock } from "@/components/dashboard/NextUpBlock";
 import { HighPriorityBlock } from "@/components/dashboard/HighPriorityBlock";
 import { InboxBlock } from "@/components/dashboard/InboxBlock";
 import { FocusBlock } from "@/components/dashboard/FocusBlock";
-import { PinnedCapturesBlock } from "@/components/dashboard/PinnedCapturesBlock";
+import { toast } from "sonner";
 import { completeTask, reopenTask } from "@/lib/api/tasks";
-import type { Task, Capture } from "@/types";
+import type { Task } from "@/types";
 
 interface DashboardClientProps {
   overdue: Task[];
@@ -20,7 +20,6 @@ interface DashboardClientProps {
   highPriority: Task[];
   inbox: Task[];
   focus: Task[];
-  pinnedCaptures: Capture[];
 }
 
 export function DashboardClient({
@@ -30,7 +29,6 @@ export function DashboardClient({
   highPriority,
   inbox,
   focus,
-  pinnedCaptures,
 }: DashboardClientProps) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -46,7 +44,7 @@ export function DashboardClient({
           }
           router.refresh();
         } catch {
-          // silently fail - real error handling deferred
+          toast.error("Failed to update task");
         }
       });
     },
@@ -61,7 +59,6 @@ export function DashboardClient({
       <NextUpBlock tasks={nextUp} onToggleComplete={handleToggleComplete} />
       <HighPriorityBlock tasks={highPriority} onToggleComplete={handleToggleComplete} />
       <InboxBlock tasks={inbox} onToggleComplete={handleToggleComplete} />
-      <PinnedCapturesBlock captures={pinnedCaptures} />
     </DashboardGrid>
   );
 }

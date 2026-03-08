@@ -8,6 +8,7 @@ import {
   ChevronDown,
   AlertCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -53,11 +54,11 @@ function EmptyState() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
       <div className="rounded-full bg-muted p-4">
-        <AlertCircle className="h-8 w-8 text-muted-foreground" />
+        <AlertCircle className="h-8 w-8 text-muted-foreground/60" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">No tasks found</h3>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Create a new task to get started.
+      <h3 className="mt-4 text-base font-medium">No tasks match your filters</h3>
+      <p className="mt-1 max-w-[240px] text-sm text-muted-foreground">
+        Try adjusting your view or create a new task to get started.
       </p>
     </div>
   );
@@ -131,7 +132,7 @@ export function TaskList({
           }
           onRefresh?.();
         } catch {
-          // silently fail - real error handling deferred
+          toast.error("Failed to update task");
         }
       });
     },

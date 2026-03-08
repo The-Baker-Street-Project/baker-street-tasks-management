@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { createTag, updateTag, deleteTag } from "@/lib/api/views";
 import type { Tag } from "@/types";
 
@@ -37,9 +38,14 @@ export function SettingsPageClient({ initialTags }: SettingsPageClientProps) {
     const name = newTagName.trim();
     if (!name) return;
     startTransition(async () => {
-      const tag = await createTag({ name, color: newTagColor });
-      setTags((prev) => [...prev, tag].sort((a, b) => a.name.localeCompare(b.name)));
-      setNewTagName("");
+      try {
+        const tag = await createTag({ name, color: newTagColor });
+        setTags((prev) => [...prev, tag].sort((a, b) => a.name.localeCompare(b.name)));
+        setNewTagName("");
+        toast.success("Tag created");
+      } catch {
+        toast.error("Failed to create tag");
+      }
     });
   };
 
@@ -48,23 +54,33 @@ export function SettingsPageClient({ initialTags }: SettingsPageClientProps) {
     const name = editName.trim();
     if (!name) return;
     startTransition(async () => {
-      const updated = await updateTag(editingTag.id, {
-        name,
-        color: editColor || null,
-      });
-      setTags((prev) =>
-        prev
-          .map((t) => (t.id === updated.id ? updated : t))
-          .sort((a, b) => a.name.localeCompare(b.name))
-      );
-      setEditingTag(null);
+      try {
+        const updated = await updateTag(editingTag.id, {
+          name,
+          color: editColor || null,
+        });
+        setTags((prev) =>
+          prev
+            .map((t) => (t.id === updated.id ? updated : t))
+            .sort((a, b) => a.name.localeCompare(b.name))
+        );
+        setEditingTag(null);
+        toast.success("Tag updated");
+      } catch {
+        toast.error("Failed to update tag");
+      }
     });
   };
 
   const handleDeleteTag = (tagId: string) => {
     startTransition(async () => {
-      await deleteTag(tagId);
-      setTags((prev) => prev.filter((t) => t.id !== tagId));
+      try {
+        await deleteTag(tagId);
+        setTags((prev) => prev.filter((t) => t.id !== tagId));
+        toast.success("Tag deleted");
+      } catch {
+        toast.error("Failed to delete tag");
+      }
     });
   };
 
@@ -92,7 +108,7 @@ export function SettingsPageClient({ initialTags }: SettingsPageClientProps) {
               Tags
             </CardTitle>
             <CardDescription>
-              Create and manage tags to organize your tasks and captures
+              Create and manage tags to organize your tasks
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

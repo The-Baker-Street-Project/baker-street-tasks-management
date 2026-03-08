@@ -16,9 +16,10 @@ interface KanbanColumnProps {
 }
 
 const COLUMN_STYLES: Record<string, string> = {
-  Inbox: "border-t-gray-400",
-  Active: "border-t-blue-500",
-  Done: "border-t-green-500",
+  Inbox: "border-t-[var(--status-inbox)]",
+  Active: "border-t-[var(--status-active)]",
+  Someday: "border-t-[var(--status-someday)]",
+  Done: "border-t-[var(--status-done)]",
 };
 
 export function KanbanColumn({
@@ -75,9 +76,12 @@ export function KanbanColumn({
         </SortableContext>
 
         {tasks.length === 0 && (
-          <div className="flex items-center justify-center rounded-lg border-2 border-dashed p-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Drop tasks here
+          <div className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed p-6 text-center">
+            <p className="text-xs font-medium text-muted-foreground">
+              No {status.toLowerCase()} tasks
+            </p>
+            <p className="text-[10px] text-muted-foreground/60">
+              Drag tasks here
             </p>
           </div>
         )}
