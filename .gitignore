@@ -11,5 +11,8 @@ coverage/
 *.log
 data/
 
+# Worktrees
+.worktrees/
+
 # WSL/Windows Zone.Identifier artifacts
 *:Zone.Identifier

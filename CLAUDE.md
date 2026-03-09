@@ -78,9 +78,12 @@ packages/mcp-server/src/
 - `cn()` helper (clsx + tailwind-merge) for conditional classes
 - Icons: `lucide-react` only
 - Components: shadcn/ui primitives in `components/ui/`, compose into feature components
-- Use OKLCH CSS variables for colors (defined in `globals.css`), not hardcoded values
+- Use OKLCH CSS variables for colors (defined in `globals.css`), not hardcoded values — semantic tokens exist for statuses (`--status-*`), priorities (`--priority-*`), dates (`--date-*`), focus star (`--focus-star`), AI badge (`--ai-badge*`), and progress (`--progress-complete`)
+- Toast notifications: use `toast.success()` / `toast.error()` from `sonner` for user-facing feedback
 
 ## Environment
+
+- **Node.js >=20 required** — `.nvmrc` is set to 20. Run `nvm use` before working. Tailwind CSS 4's `@tailwindcss/oxide` native bindings require Node 20+.
 
 Generated automatically by `scripts/dev.sh` on first run:
 - `PGLITE_DATA_DIR` — PGlite data directory (default: `./data/pglite`)
@@ -96,7 +99,7 @@ Generated automatically by `scripts/dev.sh` on first run:
 - **Seed is destructive for system views**: `db:seed` deletes all system views before re-inserting (intentional for idempotency)
 - **Drizzle client singleton**: `createDb()` caches per connection URL — don't create multiple instances
 - **MCP sessions**: Each POST to `/mcp` creates a new session with its own transport — no shared global state
-- **Dark mode colors**: Always pair light/dark variants (e.g., `border-yellow-300 dark:border-yellow-700`), never use hardcoded light-only colors
+- **Dark mode colors**: Use semantic CSS variables (`--status-*`, `--priority-*`, etc.) which have light/dark variants built in. Avoid hardcoded Tailwind color classes (e.g., `text-blue-700`) — use `text-[var(--status-active)]` instead
 - **No auth in v1**: Single API key for everything. No user sessions or login flow yet
 - **Subtask auto-complete**: Completing a parent task with incomplete subtasks triggers a warning; on confirm, all subtasks are auto-marked done
 - **Virtual scrolling**: TaskList uses `@tanstack/react-virtual`
