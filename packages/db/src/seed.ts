@@ -1,10 +1,10 @@
+import { pathToFileURL } from "url";
 import { createDb, getPgliteClient } from "./client";
 import { savedViews } from "./schema/views";
 import { eq } from "drizzle-orm";
+import type { Database } from "./client";
 
-async function seed() {
-  const db = createDb();
-
+export async function seedDb(db: Database) {
   console.log("Seeding system views...");
 
   // Clear existing system views to ensure idempotency
@@ -42,16 +42,25 @@ async function seed() {
   ]);
 
   console.log("Seed complete.");
-
-  // Close PGlite to flush writes before exit
-  await getPgliteClient().close();
-  process.exit(0);
 }
 
-seed().catch(async (err) => {
-  console.error("Seed failed:", err);
-  try {
-    await getPgliteClient().close();
-  } catch {}
-  process.exit(1);
-});
+// Only run as CLI when executed directly (not when imported by tests)
+const isMainModule =
+  process.argv[1] != null &&
+  import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (isMainModule) {
+  const db = createDb();
+  seedDb(db)
+    .then(async () => {
+      await getPgliteClient().close();
+      process.exit(0);
+    })
+    .catch(async (err) => {
+      console.error("Seed failed:", err);
+      try {
+        await getPgliteClient().close();
+      } catch {}
+      process.exit(1);
+    });
+}
