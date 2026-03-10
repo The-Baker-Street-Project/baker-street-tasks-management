@@ -27,8 +27,17 @@ COPY --from=builder /app/packages/mcp-server ./packages/mcp-server
 COPY --from=builder /app/packages/db ./packages/db
 # Copy unified server entrypoint
 COPY --from=builder /app/apps/web/server.ts ./apps/web/server.ts
+# Next.js requires an app directory to exist even in production standalone mode
+RUN mkdir -p /app/apps/web/src/app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
+
+# Create workspace symlinks so tsx can resolve @baker-street/* packages
+RUN mkdir -p node_modules/@baker-street && \
+    ln -s /app/packages/db node_modules/@baker-street/db && \
+    ln -s /app/packages/mcp-server node_modules/@baker-street/mcp-server
 
 EXPOSE 3000 3100
 ENV PORT=3000
