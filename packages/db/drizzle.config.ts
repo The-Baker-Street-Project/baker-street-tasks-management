@@ -3,9 +3,8 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
   schema: "./src/schema/index.ts",
   out: "./drizzle",
-  dialect: "postgresql",
-  driver: "pglite",
+  dialect: "sqlite",
   dbCredentials: {
-    url: process.env.PGLITE_DATA_DIR || "./data/pglite",
+    url: process.env.SQLITE_DB_PATH || "./data/tasks.db",
   },
 });

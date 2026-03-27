@@ -3,11 +3,11 @@ import { createTestDb } from "../../test-helpers";
 import { savedViews } from "../../schema/index";
 import { getAllSavedViews } from "../../queries/views";
 import type { Database } from "../../client";
-import type { PGlite } from "@electric-sql/pglite";
+import type BetterSqlite3 from "better-sqlite3";
 
 describe("View queries", () => {
   let db: Database;
-  let client: PGlite;
+  let client: BetterSqlite3.Database;
   let cleanup: () => Promise<void>;
 
   beforeAll(async () => {

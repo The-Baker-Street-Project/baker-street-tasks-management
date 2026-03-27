@@ -1,32 +1,26 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  boolean,
-  jsonb,
-  timestamp,
-  index,
-} from "drizzle-orm/pg-core";
-import { entityTypeEnum, actorTypeEnum } from "./enums";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import type { EntityType, ActorType } from "./enums";
 
-export const auditLog = pgTable(
+export const auditLog = sqliteTable(
   "audit_log",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
-    entityType: entityTypeEnum("entity_type").notNull(),
-    entityId: uuid("entity_id").notNull(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    entityType: text("entity_type").$type<EntityType>().notNull(),
+    entityId: text("entity_id").notNull(),
     action: text("action").notNull(),
-    actorType: actorTypeEnum("actor_type").notNull().default("user"),
+    actorType: text("actor_type").$type<ActorType>().notNull().default("user"),
     agentId: text("agent_id"),
     requestId: text("request_id"),
-    before: jsonb("before"),
-    after: jsonb("after"),
+    before: text("before", { mode: "json" }),
+    after: text("after", { mode: "json" }),
     reason: text("reason"),
-    undone: boolean("undone").notNull().default(false),
-    undoneByAuditId: uuid("undone_by_audit_id"),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    undone: integer("undone", { mode: "boolean" }).notNull().default(false),
+    undoneByAuditId: text("undone_by_audit_id"),
+    createdAt: text("created_at")
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date().toISOString()),
   },
   (table) => [
     index("audit_entity_idx").on(table.entityType, table.entityId),

@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   output: "standalone",
   transpilePackages: ["@baker-street/db"],
-  serverExternalPackages: ["@electric-sql/pglite"],
+  serverExternalPackages: ["better-sqlite3"],
 };
 
 export default nextConfig;

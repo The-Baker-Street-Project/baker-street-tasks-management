@@ -32,8 +32,8 @@ spec:
             - secretRef:
                 name: baker-street-secrets
           volumeMounts:
-            - name: pglite-data
-              mountPath: /data/pglite
+            - name: sqlite-data
+              mountPath: /data
           readinessProbe:
             httpGet:
               path: /
@@ -54,6 +54,6 @@ spec:
               memory: 1Gi
               cpu: "1"
       volumes:
-        - name: pglite-data
+        - name: sqlite-data
           persistentVolumeClaim:
-            claimName: pglite-data
+            claimName: sqlite-data

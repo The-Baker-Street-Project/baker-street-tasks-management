@@ -2,11 +2,11 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import { sql } from "drizzle-orm";
 import { createTestDb } from "../test-helpers";
 import type { Database } from "../client";
-import type { PGlite } from "@electric-sql/pglite";
+import type BetterSqlite3 from "better-sqlite3";
 
-describe("PGlite test infrastructure", () => {
+describe("SQLite test infrastructure", () => {
   let db: Database;
-  let client: PGlite;
+  let client: BetterSqlite3.Database;
   let cleanup: () => Promise<void>;
 
   beforeAll(async () => {
@@ -17,15 +17,15 @@ describe("PGlite test infrastructure", () => {
     await cleanup();
   });
 
-  it("should connect and run a simple query", async () => {
-    const result = await db.execute(sql`SELECT 1 AS ok`);
-    expect(result.rows[0].ok).toBe(1);
+  it("should connect and run a simple query", () => {
+    const result = db.get(sql`SELECT 1 AS ok`);
+    expect(result).toEqual({ ok: 1 });
   });
 
-  it("should have the tasks table from migrations", async () => {
-    const result = await db.execute(
-      sql`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'tasks')`
+  it("should have the tasks table from migrations", () => {
+    const result = db.get(
+      sql`SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'`
     );
-    expect(result.rows[0].exists).toBe(true);
+    expect(result).toEqual({ name: "tasks" });
   });
 });

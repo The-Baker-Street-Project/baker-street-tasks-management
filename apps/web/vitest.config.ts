@@ -6,7 +6,7 @@ export default defineConfig({
     globals: true,
     testTimeout: 30_000,
     hookTimeout: 30_000,
-    pool: "forks", // Process isolation — prevents PGlite singleton conflicts between test files
+    pool: "forks", // Process isolation — prevents SQLite singleton conflicts between test files
     passWithNoTests: true,
   },
   resolve: {

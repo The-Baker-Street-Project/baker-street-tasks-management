@@ -1,48 +1,36 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  boolean,
-  timestamp,
-  integer,
-  index,
-} from "drizzle-orm/pg-core";
-import {
-  taskStatusEnum,
-  contextEnum,
-  priorityEnum,
-  sourceEnum,
-} from "./enums";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import type { TaskStatus, Context, Priority, Source } from "./enums";
 
-export const tasks = pgTable(
+export const tasks = sqliteTable(
   "tasks",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
     notes: text("notes"),
-    status: taskStatusEnum("status").notNull().default("Inbox"),
-    context: contextEnum("context"),
-    priority: priorityEnum("priority").default("P3"),
-    dueAt: timestamp("due_at", { withTimezone: true }),
-    startAt: timestamp("start_at", { withTimezone: true }),
-    completedAt: timestamp("completed_at", { withTimezone: true }),
+    status: text("status").$type<TaskStatus>().notNull().default("Inbox"),
+    context: text("context").$type<Context>(),
+    priority: text("priority").$type<Priority>().default("P3"),
+    dueAt: text("due_at"),
+    startAt: text("start_at"),
+    completedAt: text("completed_at"),
     estimate: integer("estimate"),
     orderIndex: text("order_index").notNull(),
-    isFocus: boolean("is_focus").notNull().default(false),
+    isFocus: integer("is_focus", { mode: "boolean" }).notNull().default(false),
     // AI metadata
-    createdBy: sourceEnum("created_by").notNull().default("web_ui"),
+    createdBy: text("created_by").$type<Source>().notNull().default("web_ui"),
     agentId: text("agent_id"),
     sourceMessageId: text("source_message_id"),
     requestId: text("request_id"),
     reason: text("reason"),
-    // Note: search_vector tsvector column + GIN index added via custom migration
-    // Timestamps
-    createdAt: timestamp("created_at", { withTimezone: true })
+    // Timestamps (ISO 8601 strings)
+    createdAt: text("created_at")
       .notNull()
-      .defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .$defaultFn(() => new Date().toISOString()),
+    updatedAt: text("updated_at")
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date().toISOString()),
   },
   (table) => [
     index("tasks_status_idx").on(table.status),

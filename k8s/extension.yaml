@@ -48,16 +48,16 @@ spec:
               value: nats://nats.bakerst.svc.cluster.local:4222
             - name: EXTENSION_MCP_URL
               value: http://ext-baker-street-tasks.bakerst.svc.cluster.local:8080/mcp
-            - name: PGLITE_DATA_DIR
-              value: /data/pglite
+            - name: SQLITE_DB_PATH
+              value: /data/tasks.db
             - name: MCP_API_KEY
               valueFrom:
                 secretKeyRef:
                   name: baker-street-tasks-secrets
                   key: MCP_API_KEY
           volumeMounts:
-            - name: pglite-data
-              mountPath: /data/pglite
+            - name: sqlite-data
+              mountPath: /data
             - name: tmp
               mountPath: /tmp
           livenessProbe:
@@ -90,16 +90,16 @@ spec:
             seccompProfile:
               type: RuntimeDefault
       volumes:
-        - name: pglite-data
+        - name: sqlite-data
           persistentVolumeClaim:
-            claimName: baker-street-tasks-pglite
+            claimName: baker-street-tasks-sqlite
         - name: tmp
           emptyDir: {}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: baker-street-tasks-pglite
+  name: baker-street-tasks-sqlite
   namespace: bakerst
 spec:
   accessModes:

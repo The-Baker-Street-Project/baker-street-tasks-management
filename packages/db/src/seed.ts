@@ -1,5 +1,5 @@
 import { pathToFileURL } from "url";
-import { createDb, getPgliteClient } from "./client";
+import { createDb } from "./client";
 import { savedViews } from "./schema/views";
 import { eq } from "drizzle-orm";
 import type { Database } from "./client";
@@ -52,15 +52,11 @@ const isMainModule =
 if (isMainModule) {
   const db = createDb();
   seedDb(db)
-    .then(async () => {
-      await getPgliteClient().close();
+    .then(() => {
       process.exit(0);
     })
-    .catch(async (err) => {
+    .catch((err) => {
       console.error("Seed failed:", err);
-      try {
-        await getPgliteClient().close();
-      } catch {}
       process.exit(1);
     });
 }

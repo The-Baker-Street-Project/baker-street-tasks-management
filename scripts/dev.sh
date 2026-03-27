@@ -20,10 +20,11 @@ fi
 
 set -a; source .env; set +a
 
-# Ensure PGlite data directory exists
-DATA_DIR="${PGLITE_DATA_DIR:-./data/pglite}"
+# Ensure SQLite data directory exists
+DB_PATH="${SQLITE_DB_PATH:-./data/tasks.db}"
+DATA_DIR="$(dirname "$DB_PATH")"
 mkdir -p "$DATA_DIR"
-echo "PGlite data directory: $DATA_DIR"
+echo "SQLite database: $DB_PATH"
 
 # Install deps if needed
 if [ ! -d node_modules ]; then

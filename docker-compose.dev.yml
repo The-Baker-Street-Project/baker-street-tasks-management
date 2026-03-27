@@ -1,4 +1,4 @@
-# PostgreSQL dev container — replaced by PGlite (in-process).
+# PostgreSQL dev container — replaced by SQLite (better-sqlite3, in-process).
 # Kept for reference in case external Postgres is ever needed again.
 #
 # services:
