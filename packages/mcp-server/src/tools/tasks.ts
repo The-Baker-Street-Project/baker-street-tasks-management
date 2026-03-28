@@ -97,8 +97,8 @@ export function registerTaskTools(server: McpServer, db: Database) {
           status: params.status ?? "Inbox",
           context: params.context ?? null,
           priority: params.priority ?? "P3",
-          dueAt: params.due_at ? new Date(params.due_at) : null,
-          startAt: params.start_at ? new Date(params.start_at) : null,
+          dueAt: params.due_at ? new Date(params.due_at).toISOString() : null,
+          startAt: params.start_at ? new Date(params.start_at).toISOString() : null,
           estimate: params.estimate ?? null,
           isFocus: params.is_focus ?? false,
           orderIndex,
@@ -267,14 +267,14 @@ export function registerTaskTools(server: McpServer, db: Database) {
       const oldTagIds = await getTaskTagIds(db, params.task_id);
       const before = taskSnapshot(existing as unknown as Record<string, unknown>, oldTagIds);
 
-      const updates: Record<string, unknown> = { updatedAt: new Date() };
+      const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
       if (params.title !== undefined) updates.title = params.title;
       if (params.notes !== undefined) updates.notes = params.notes;
       if (params.status !== undefined) updates.status = params.status;
       if (params.context !== undefined) updates.context = params.context;
       if (params.priority !== undefined) updates.priority = params.priority;
-      if (params.due_at !== undefined) updates.dueAt = params.due_at ? new Date(params.due_at) : null;
-      if (params.start_at !== undefined) updates.startAt = params.start_at ? new Date(params.start_at) : null;
+      if (params.due_at !== undefined) updates.dueAt = params.due_at ? new Date(params.due_at).toISOString() : null;
+      if (params.start_at !== undefined) updates.startAt = params.start_at ? new Date(params.start_at).toISOString() : null;
       if (params.estimate !== undefined) updates.estimate = params.estimate;
       if (params.is_focus !== undefined) updates.isFocus = params.is_focus;
 
@@ -328,9 +328,10 @@ export function registerTaskTools(server: McpServer, db: Database) {
       const tagIds = await getTaskTagIds(db, params.task_id);
       const before = taskSnapshot(existing as unknown as Record<string, unknown>, tagIds);
 
+      const now = new Date().toISOString();
       const [updated] = await db
         .update(tasks)
-        .set({ status: "Done", completedAt: new Date(), updatedAt: new Date() })
+        .set({ status: "Done", completedAt: now, updatedAt: now })
         .where(eq(tasks.id, params.task_id))
         .returning();
 
@@ -374,7 +375,7 @@ export function registerTaskTools(server: McpServer, db: Database) {
 
       const [updated] = await db
         .update(tasks)
-        .set({ status: "Active", completedAt: null, updatedAt: new Date() })
+        .set({ status: "Active", completedAt: null, updatedAt: new Date().toISOString() })
         .where(eq(tasks.id, params.task_id))
         .returning();
 
@@ -398,22 +399,19 @@ export function registerTaskTools(server: McpServer, db: Database) {
   // ─── tasks.search ──────────────────────────────────────────────
   server.tool(
     "tasks.search",
-    "Full-text search across task title and notes using tsvector",
+    "Full-text search across task title and notes using FTS5",
     {
       query: z.string().describe("Search query"),
       limit: z.number().int().min(1).max(100).optional().describe("Max results (default 20)"),
     },
     async (params) => {
       const limit = params.limit ?? 20;
-      // Convert the user query to a tsquery using plainto_tsquery for safety
+      // Use FTS5 MATCH for full-text search
       const rows = await db
         .select()
         .from(tasks)
         .where(
-          sql`search_vector @@ plainto_tsquery('english', ${params.query})`,
-        )
-        .orderBy(
-          sql`ts_rank(search_vector, plainto_tsquery('english', ${params.query})) DESC`,
+          sql`${tasks.id} IN (SELECT id FROM tasks_fts WHERE tasks_fts MATCH ${params.query} ORDER BY rank LIMIT ${limit})`,
         )
         .limit(limit);
 
@@ -463,11 +461,11 @@ export function registerTaskTools(server: McpServer, db: Database) {
       const updateValues: Record<string, unknown> = {
         status: params.status,
         orderIndex,
-        updatedAt: new Date(),
+        updatedAt: new Date().toISOString(),
       };
 
       if (params.status === "Done") {
-        updateValues.completedAt = new Date();
+        updateValues.completedAt = new Date().toISOString();
       } else if (existing.status === "Done") {
         // Moving away from Done — clear completed_at
         updateValues.completedAt = null;
@@ -514,14 +512,14 @@ export function registerTaskTools(server: McpServer, db: Database) {
         return { content: [{ type: "text" as const, text: JSON.stringify(idempotencyCheck.result) }] };
       }
 
-      const updates: Record<string, unknown> = { updatedAt: new Date() };
+      const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
       if (params.status !== undefined) updates.status = params.status;
       if (params.context !== undefined) updates.context = params.context;
       if (params.priority !== undefined) updates.priority = params.priority;
       if (params.is_focus !== undefined) updates.isFocus = params.is_focus;
 
       if (params.status === "Done") {
-        updates.completedAt = new Date();
+        updates.completedAt = new Date().toISOString();
       }
 
       // Fetch befores

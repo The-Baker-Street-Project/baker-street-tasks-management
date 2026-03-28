@@ -9,6 +9,7 @@
     "./schema": "./src/schema/index.ts",
     "./queries": "./src/queries/index.ts",
     "./migrate": "./src/migrate.ts",
+    "./fts": "./src/fts.ts",
     "./test-helpers": "./src/test-helpers.ts"
   },
   "scripts": {
@@ -21,10 +22,11 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.45.0",
-    "@electric-sql/pglite": "^0.2.0",
+    "better-sqlite3": "^11.0.0",
     "fractional-indexing": "^3.2.0"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^22.0.0",
     "drizzle-kit": "^0.31.0",
     "tsx": "^4.19.0",

@@ -103,7 +103,7 @@ export function registerViewTools(server: McpServer, db: Database) {
         return { content: [{ type: "text" as const, text: JSON.stringify({ error: "View not found" }) }], isError: true };
       }
 
-      const updates: Record<string, unknown> = { updatedAt: new Date() };
+      const updates: Record<string, unknown> = { updatedAt: new Date().toISOString() };
       if (params.name !== undefined) updates.name = params.name;
       if (params.filter_definition !== undefined) updates.filterDefinition = params.filter_definition;
       if (params.sort_order !== undefined) updates.sortOrder = params.sort_order;

@@ -60,13 +60,13 @@ async function restoreEntity(
           status: snap.status as "Inbox" | "Active" | "Someday" | "Done" | "Archived",
           context: (snap.context as "Home" | "Work" | null) ?? null,
           priority: (snap.priority as "P0" | "P1" | "P2" | "P3") ?? "P3",
-          dueAt: snap.dueAt ? new Date(snap.dueAt as string) : null,
-          startAt: snap.startAt ? new Date(snap.startAt as string) : null,
-          completedAt: snap.completedAt ? new Date(snap.completedAt as string) : null,
+          dueAt: (snap.dueAt as string | null) ?? null,
+          startAt: (snap.startAt as string | null) ?? null,
+          completedAt: (snap.completedAt as string | null) ?? null,
           estimate: (snap.estimate as number | null) ?? null,
           orderIndex: snap.orderIndex as string,
           isFocus: (snap.isFocus as boolean) ?? false,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(tasks.id, entityId))
         .returning();
@@ -87,7 +87,7 @@ async function restoreEntity(
           title: snap.title as string,
           done: (snap.done as boolean) ?? false,
           orderIndex: snap.orderIndex as string,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(subtasks.id, entityId))
         .returning();
@@ -115,7 +115,7 @@ async function restoreEntity(
           filterDefinition: (snap.filterDefinition as Record<string, unknown>) ?? null,
           sortOrder: (snap.sortOrder as number) ?? 0,
           isHidden: (snap.isHidden as boolean) ?? false,
-          updatedAt: new Date(),
+          updatedAt: new Date().toISOString(),
         })
         .where(eq(savedViews.id, entityId))
         .returning();

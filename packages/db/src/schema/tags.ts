@@ -1,32 +1,28 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  timestamp,
-  uniqueIndex,
-} from "drizzle-orm/pg-core";
+import { sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 import { tasks } from "./tasks";
 
-export const tags = pgTable(
+export const tags = sqliteTable(
   "tags",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     name: text("name").notNull(),
     color: text("color"),
-    createdAt: timestamp("created_at", { withTimezone: true })
+    createdAt: text("created_at")
       .notNull()
-      .defaultNow(),
+      .$defaultFn(() => new Date().toISOString()),
   },
   (table) => [uniqueIndex("tags_name_unique_idx").on(table.name)]
 );
 
-export const taskTags = pgTable(
+export const taskTags = sqliteTable(
   "task_tags",
   {
-    taskId: uuid("task_id")
+    taskId: text("task_id")
       .notNull()
       .references(() => tasks.id, { onDelete: "cascade" }),
-    tagId: uuid("tag_id")
+    tagId: text("tag_id")
       .notNull()
       .references(() => tags.id, { onDelete: "cascade" }),
   },
@@ -34,4 +30,3 @@ export const taskTags = pgTable(
     uniqueIndex("task_tags_unique_idx").on(table.taskId, table.tagId),
   ]
 );
-

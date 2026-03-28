@@ -18,12 +18,13 @@ export async function getTaskById(db: Database, id: string) {
 }
 
 export async function getOverdueTasks(db: Database, limit = 10) {
+  const now = new Date().toISOString();
   return db
     .select()
     .from(tasks)
     .where(
       and(
-        lt(tasks.dueAt, new Date()),
+        lt(tasks.dueAt, now),
         or(
           eq(tasks.status, "Inbox"),
           eq(tasks.status, "Active"),
@@ -44,8 +45,8 @@ export async function getDueTodayTasks(db: Database) {
     .from(tasks)
     .where(
       and(
-        gte(tasks.dueAt, startOfDay),
-        lt(tasks.dueAt, endOfDay),
+        gte(tasks.dueAt, startOfDay.toISOString()),
+        lt(tasks.dueAt, endOfDay.toISOString()),
         or(
           eq(tasks.status, "Inbox"),
           eq(tasks.status, "Active"),
@@ -93,12 +94,32 @@ export async function getFocusTasks(db: Database, limit = 3) {
 }
 
 export async function searchTasksFts(db: Database, query: string, limit = 20) {
+  // Use FTS5 MATCH query for full-text search
   return db
-    .select()
+    .select({
+      id: tasks.id,
+      title: tasks.title,
+      notes: tasks.notes,
+      status: tasks.status,
+      context: tasks.context,
+      priority: tasks.priority,
+      dueAt: tasks.dueAt,
+      startAt: tasks.startAt,
+      completedAt: tasks.completedAt,
+      estimate: tasks.estimate,
+      orderIndex: tasks.orderIndex,
+      isFocus: tasks.isFocus,
+      createdBy: tasks.createdBy,
+      agentId: tasks.agentId,
+      sourceMessageId: tasks.sourceMessageId,
+      requestId: tasks.requestId,
+      reason: tasks.reason,
+      createdAt: tasks.createdAt,
+      updatedAt: tasks.updatedAt,
+    })
     .from(tasks)
-    .where(sql`search_vector @@ plainto_tsquery('english', ${query})`)
-    .orderBy(
-      sql`ts_rank(search_vector, plainto_tsquery('english', ${query})) DESC`,
+    .where(
+      sql`${tasks.id} IN (SELECT id FROM tasks_fts WHERE tasks_fts MATCH ${query} ORDER BY rank LIMIT ${limit})`,
     )
     .limit(limit);
 }

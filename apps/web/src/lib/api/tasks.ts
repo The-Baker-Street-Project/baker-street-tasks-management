@@ -15,7 +15,7 @@ import {
   gte,
   ne,
   or,
-  ilike,
+  like,
   asc,
   desc,
   inArray,
@@ -35,6 +35,11 @@ export interface GetTasksParams {
   sort?: "due_date" | "priority" | "created" | "order";
 }
 
+/** Convert ISO string | null to Date | null */
+function toDate(val: string | null): Date | null {
+  return val ? new Date(val) : null;
+}
+
 function mapTask(
   row: typeof tasks.$inferSelect & {
     subtasks?: (typeof subtasks.$inferSelect)[];
@@ -48,9 +53,9 @@ function mapTask(
     status: row.status as TaskStatus,
     context: row.context as Context | null,
     priority: row.priority as Priority,
-    dueAt: row.dueAt,
-    startAt: row.startAt,
-    completedAt: row.completedAt,
+    dueAt: toDate(row.dueAt),
+    startAt: toDate(row.startAt),
+    completedAt: toDate(row.completedAt),
     estimate: row.estimate,
     orderIndex: row.orderIndex,
     isFocus: row.isFocus,
@@ -59,8 +64,8 @@ function mapTask(
     sourceMessageId: row.sourceMessageId,
     requestId: row.requestId,
     reason: row.reason,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: new Date(row.createdAt),
+    updatedAt: new Date(row.updatedAt),
     subtasks: row.subtasks?.map((s) => ({
       id: s.id,
       taskId: s.taskId,
@@ -71,14 +76,14 @@ function mapTask(
       agentId: s.agentId,
       requestId: s.requestId,
       reason: s.reason,
-      createdAt: s.createdAt,
-      updatedAt: s.updatedAt,
+      createdAt: new Date(s.createdAt),
+      updatedAt: new Date(s.updatedAt),
     })),
     tags: row.taskTags?.map((tt) => ({
       id: tt.tag.id,
       name: tt.tag.name,
       color: tt.tag.color,
-      createdAt: tt.tag.createdAt,
+      createdAt: new Date(tt.tag.createdAt),
     })),
   };
 }
@@ -208,8 +213,8 @@ export async function createTask(data: CreateTaskInput): Promise<Task> {
       status: data.status ?? "Inbox",
       context: data.context ?? null,
       priority: data.priority ?? "P3",
-      dueAt: data.dueAt ?? null,
-      startAt: data.startAt ?? null,
+      dueAt: data.dueAt?.toISOString() ?? null,
+      startAt: data.startAt?.toISOString() ?? null,
       estimate: data.estimate ?? null,
       isFocus: data.isFocus ?? false,
       orderIndex,
@@ -248,20 +253,20 @@ export async function updateTask(
   data: UpdateTaskInput
 ): Promise<Task> {
   const db = getDb();
-  const updateData: Record<string, unknown> = { updatedAt: new Date() };
+  const updateData: Record<string, unknown> = { updatedAt: new Date().toISOString() };
 
   if (data.title !== undefined) updateData.title = data.title;
   if (data.notes !== undefined) updateData.notes = data.notes;
   if (data.status !== undefined) {
     updateData.status = data.status;
     if (data.status === "Done") {
-      updateData.completedAt = new Date();
+      updateData.completedAt = new Date().toISOString();
     }
   }
   if (data.priority !== undefined) updateData.priority = data.priority;
   if (data.context !== undefined) updateData.context = data.context;
-  if (data.dueAt !== undefined) updateData.dueAt = data.dueAt;
-  if (data.startAt !== undefined) updateData.startAt = data.startAt;
+  if (data.dueAt !== undefined) updateData.dueAt = data.dueAt?.toISOString() ?? null;
+  if (data.startAt !== undefined) updateData.startAt = data.startAt?.toISOString() ?? null;
   if (data.estimate !== undefined) updateData.estimate = data.estimate;
   if (data.isFocus !== undefined) updateData.isFocus = data.isFocus;
   if (data.orderIndex !== undefined) updateData.orderIndex = data.orderIndex;
@@ -285,7 +290,7 @@ export async function reopenTask(id: string): Promise<Task> {
   const db = getDb();
   await db
     .update(tasks)
-    .set({ status: "Active", completedAt: null, updatedAt: new Date() })
+    .set({ status: "Active", completedAt: null, updatedAt: new Date().toISOString() })
     .where(eq(tasks.id, id));
   const result = await getTask(id);
   return result!;
@@ -295,7 +300,7 @@ export async function reopenTask(id: string): Promise<Task> {
 
 export async function getOverdueTasks(): Promise<Task[]> {
   const db = getDb();
-  const now = startOfDay(new Date());
+  const now = startOfDay(new Date()).toISOString();
   const rows = await db.query.tasks.findMany({
     where: and(
       lt(tasks.dueAt, now),
@@ -313,8 +318,8 @@ export async function getOverdueTasks(): Promise<Task[]> {
 
 export async function getDueTodayTasks(): Promise<Task[]> {
   const db = getDb();
-  const todayStart = startOfDay(new Date());
-  const todayEnd = endOfDay(new Date());
+  const todayStart = startOfDay(new Date()).toISOString();
+  const todayEnd = endOfDay(new Date()).toISOString();
   const rows = await db.query.tasks.findMany({
     where: and(
       gte(tasks.dueAt, todayStart),
@@ -370,8 +375,8 @@ export async function searchTasks(query: string): Promise<Task[]> {
   const db = getDb();
   const rows = await db.query.tasks.findMany({
     where: or(
-      ilike(tasks.title, `%${query}%`),
-      ilike(tasks.notes, `%${query}%`)
+      like(tasks.title, `%${query}%`),
+      like(tasks.notes, `%${query}%`)
     ),
     with: {
       subtasks: { orderBy: asc(subtasks.orderIndex) },
@@ -410,7 +415,7 @@ export async function toggleSubtask(
   const db = getDb();
   await db
     .update(subtasks)
-    .set({ done, updatedAt: new Date() })
+    .set({ done, updatedAt: new Date().toISOString() })
     .where(eq(subtasks.id, subtaskId));
 }
 

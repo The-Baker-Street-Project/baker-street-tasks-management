@@ -154,7 +154,7 @@ export function registerTagTools(server: McpServer, db: Database) {
       }
 
       // Reassign task_tags: update source -> target, ignoring conflicts
-      await db.execute(sql`
+      db.run(sql`
         UPDATE task_tags SET tag_id = ${params.target_tag_id}
         WHERE tag_id = ${params.source_tag_id}
         AND task_id NOT IN (

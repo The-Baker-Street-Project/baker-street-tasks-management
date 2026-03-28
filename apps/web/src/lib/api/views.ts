@@ -27,8 +27,8 @@ export async function getSavedViews(type?: string): Promise<SavedView[]> {
     isHidden: row.isHidden,
     filterDefinition: row.filterDefinition as Record<string, unknown> | null,
     sortOrder: row.sortOrder,
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    createdAt: new Date(row.createdAt),
+    updatedAt: new Date(row.updatedAt),
   }));
 }
 
@@ -41,7 +41,7 @@ export async function getTags(): Promise<Tag[]> {
     id: row.id,
     name: row.name,
     color: row.color,
-    createdAt: row.createdAt,
+    createdAt: new Date(row.createdAt),
   }));
 }
 
@@ -61,7 +61,7 @@ export async function createTag(data: {
     id: row.id,
     name: row.name,
     color: row.color,
-    createdAt: row.createdAt,
+    createdAt: new Date(row.createdAt),
   };
 }
 
@@ -79,7 +79,7 @@ export async function updateTag(
     id: row.id,
     name: row.name,
     color: row.color,
-    createdAt: row.createdAt,
+    createdAt: new Date(row.createdAt),
   };
 }
 

@@ -112,7 +112,7 @@ export function registerSubtaskTools(server: McpServer, db: Database) {
 
       const [updated] = await db
         .update(subtasks)
-        .set({ done: params.done, updatedAt: new Date() })
+        .set({ done: params.done, updatedAt: new Date().toISOString() })
         .where(eq(subtasks.id, params.subtask_id))
         .returning();
 
@@ -168,7 +168,7 @@ export function registerSubtaskTools(server: McpServer, db: Database) {
 
       const [updated] = await db
         .update(subtasks)
-        .set({ orderIndex, updatedAt: new Date() })
+        .set({ orderIndex, updatedAt: new Date().toISOString() })
         .where(eq(subtasks.id, params.subtask_id))
         .returning();
 

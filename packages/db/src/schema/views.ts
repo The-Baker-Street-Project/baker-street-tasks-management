@@ -1,26 +1,20 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  boolean,
-  jsonb,
-  timestamp,
-  integer,
-} from "drizzle-orm/pg-core";
-import { savedViewTypeEnum } from "./enums";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import type { SavedViewType } from "./enums";
 
-export const savedViews = pgTable("saved_views", {
-  id: uuid("id").primaryKey().defaultRandom(),
+export const savedViews = sqliteTable("saved_views", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   name: text("name").notNull(),
-  type: savedViewTypeEnum("type").notNull(),
-  isSystem: boolean("is_system").notNull().default(false),
-  isHidden: boolean("is_hidden").notNull().default(false),
-  filterDefinition: jsonb("filter_definition"),
+  type: text("type").$type<SavedViewType>().notNull(),
+  isSystem: integer("is_system", { mode: "boolean" }).notNull().default(false),
+  isHidden: integer("is_hidden", { mode: "boolean" }).notNull().default(false),
+  filterDefinition: text("filter_definition", { mode: "json" }),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true })
+  createdAt: text("created_at")
     .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at")
     .notNull()
-    .defaultNow(),
+    .$defaultFn(() => new Date().toISOString()),
 });

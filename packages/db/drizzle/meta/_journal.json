@@ -1,26 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1770843189725,
-      "tag": "0000_abandoned_baron_zemo",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1770843200000,
-      "tag": "0001_add_search_vectors",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1770940800000,
-      "tag": "0002_add_entity_change_notify",
+      "version": "6",
+      "when": 1774612332279,
+      "tag": "0000_ancient_terrax",
       "breakpoints": true
     }
   ]

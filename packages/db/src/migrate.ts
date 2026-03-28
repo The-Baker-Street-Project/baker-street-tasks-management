@@ -1,5 +1,5 @@
-import { migrate } from "drizzle-orm/pglite/migrator";
-import type { PgliteDatabase } from "drizzle-orm/pglite";
+import { migrate } from "drizzle-orm/better-sqlite3/migrator";
+import type { BetterSQLite3Database } from "drizzle-orm/better-sqlite3";
 import { createDb } from "./client";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -9,10 +9,10 @@ const migrationsFolder = path.resolve(__dirname, "../drizzle");
 
 /** Run migrations on any drizzle instance (used by test helpers). */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function runMigrationsOnDb(db: PgliteDatabase<any>): Promise<void> {
-  await migrate(db, { migrationsFolder });
+export function runMigrationsOnDb(db: BetterSQLite3Database<any>): void {
+  migrate(db, { migrationsFolder });
 }
 
-export async function runMigrations(dataDir?: string) {
-  await runMigrationsOnDb(createDb(dataDir));
+export function runMigrations(dbPath?: string) {
+  runMigrationsOnDb(createDb(dbPath));
 }

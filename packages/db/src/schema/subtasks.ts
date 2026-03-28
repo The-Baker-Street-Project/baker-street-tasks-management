@@ -1,31 +1,27 @@
-import {
-  pgTable,
-  uuid,
-  text,
-  boolean,
-  timestamp,
-} from "drizzle-orm/pg-core";
-import { sourceEnum } from "./enums";
+import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import type { Source } from "./enums";
 import { tasks } from "./tasks";
 
-export const subtasks = pgTable("subtasks", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  taskId: uuid("task_id")
+export const subtasks = sqliteTable("subtasks", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  taskId: text("task_id")
     .notNull()
     .references(() => tasks.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
-  done: boolean("done").notNull().default(false),
+  done: integer("done", { mode: "boolean" }).notNull().default(false),
   orderIndex: text("order_index").notNull(),
   // AI metadata
-  createdBy: sourceEnum("created_by").notNull().default("web_ui"),
+  createdBy: text("created_by").$type<Source>().notNull().default("web_ui"),
   agentId: text("agent_id"),
   requestId: text("request_id"),
   reason: text("reason"),
-  // Timestamps
-  createdAt: timestamp("created_at", { withTimezone: true })
+  // Timestamps (ISO 8601 strings)
+  createdAt: text("created_at")
     .notNull()
-    .defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .$defaultFn(() => new Date().toISOString()),
+  updatedAt: text("updated_at")
     .notNull()
-    .defaultNow(),
+    .$defaultFn(() => new Date().toISOString()),
 });

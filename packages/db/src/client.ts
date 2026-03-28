@@ -1,31 +1,34 @@
-import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
+import BetterSqlite3 from "better-sqlite3";
+import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema/index";
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
-let _client: PGlite | null = null;
-let _dataDir: string | null = null;
+let _sqlite: BetterSqlite3.Database | null = null;
+let _dbPath: string | null = null;
 
-export function createDb(dataDir?: string) {
-  const dir = dataDir ?? process.env.PGLITE_DATA_DIR ?? "./data/pglite";
+export function createDb(dbPath?: string) {
+  const resolvedPath =
+    dbPath ?? process.env.SQLITE_DB_PATH ?? "./data/tasks.db";
   if (_db) {
-    if (_dataDir !== dir) {
+    if (_dbPath !== resolvedPath) {
       throw new Error(
-        `PGlite already initialized with "${_dataDir}", cannot re-initialize with "${dir}"`
+        `SQLite already initialized with "${_dbPath}", cannot re-initialize with "${resolvedPath}"`
       );
     }
     return _db;
   }
-  _client = new PGlite(dir);
-  _db = drizzle({ client: _client, schema });
-  _dataDir = dir;
+  _sqlite = new BetterSqlite3(resolvedPath);
+  _sqlite.pragma("journal_mode = WAL");
+  _sqlite.pragma("foreign_keys = ON");
+  _db = drizzle(_sqlite, { schema });
+  _dbPath = resolvedPath;
   return _db;
 }
 
-/** Expose the raw PGlite instance for LISTEN/NOTIFY and direct SQL. */
-export function getPgliteClient(): PGlite {
-  if (!_client) createDb();
-  return _client!;
+/** Expose the raw better-sqlite3 instance for direct SQL (FTS5, pragmas, etc). */
+export function getSqliteClient(): BetterSqlite3.Database {
+  if (!_sqlite) createDb();
+  return _sqlite!;
 }
 
 export type Database = ReturnType<typeof createDb>;

@@ -3,11 +3,11 @@ import { createTestDb } from "../../test-helpers";
 import { tags } from "../../schema/index";
 import { getAllTags } from "../../queries/tags";
 import type { Database } from "../../client";
-import type { PGlite } from "@electric-sql/pglite";
+import type BetterSqlite3 from "better-sqlite3";
 
 describe("Tag queries", () => {
   let db: Database;
-  let client: PGlite;
+  let client: BetterSqlite3.Database;
   let cleanup: () => Promise<void>;
 
   beforeAll(async () => {

@@ -3,7 +3,8 @@ import path from "path";
 import { createServer } from "http";
 import { parse } from "url";
 import { runMigrations } from "@baker-street/db/migrate";
-import { createDb } from "@baker-street/db/client";
+import { createDb, getSqliteClient } from "@baker-street/db/client";
+import { setupFts } from "@baker-street/db/fts";
 import { app as mcpApp } from "@baker-street/mcp-server/app";
 import fs from "fs";
 
@@ -15,15 +16,26 @@ const webPort = parseInt(process.env.PORT ?? "3000", 10);
 const mcpPort = parseInt(process.env.MCP_PORT ?? "3100", 10);
 
 async function main() {
-  // 1. Initialize PGlite
-  console.log("Initializing PGlite...");
-  createDb();
+  // 1. Ensure data directory exists
+  const dbPath = process.env.SQLITE_DB_PATH ?? "./data/tasks.db";
+  const dbDir = path.dirname(dbPath);
+  if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+  }
 
-  // 2. Run migrations
+  // 2. Initialize SQLite
+  console.log("Initializing SQLite...");
+  createDb(dbPath);
+
+  // 3. Run migrations
   console.log("Running migrations...");
-  await runMigrations();
+  runMigrations(dbPath);
 
-  // 3. Boot Next.js
+  // 4. Set up FTS5
+  console.log("Setting up FTS5 full-text search...");
+  setupFts(getSqliteClient());
+
+  // 5. Boot Next.js
   // In production standalone mode, inject the config so Next.js finds pre-built pages
   if (!dev) {
     const configPath = path.join(__dirname, ".next", "required-server-files.json");
@@ -48,7 +60,7 @@ async function main() {
     console.log(`Next.js ready on http://${hostname}:${webPort}`);
   });
 
-  // 4. Boot MCP server on separate port
+  // 6. Boot MCP server on separate port
   mcpApp.listen(mcpPort, hostname, () => {
     console.log(`MCP server ready on http://${hostname}:${mcpPort}`);
   });

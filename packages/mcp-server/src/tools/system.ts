@@ -13,7 +13,7 @@ export function registerSystemTools(server: McpServer, db: Database) {
     {},
     async () => {
       try {
-        const result = await db.execute(sql`SELECT 1 AS ok`);
+        db.get(sql`SELECT 1 AS ok`);
         return {
           content: [{
             type: "text" as const,
