@@ -1,6 +1,6 @@
 # Baker Street Tasks
 
-AI-first single-user task management system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on PGlite (in-process WASM Postgres).
+AI-first single-user task management system. pnpm monorepo with Next.js 15 frontend, Express MCP server, and Drizzle ORM on SQLite (better-sqlite3, in-process).
 
 ## Packages
 
@@ -14,7 +14,7 @@ AI-first single-user task management system. pnpm monorepo with Next.js 15 front
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Initialize PGlite data dir + run migrations + seed + start all services |
+| `pnpm dev` | Ensure SQLite data dir + run migrations + seed + start all services |
 | `pnpm build` | Build all packages via Turbo |
 | `pnpm lint` | Lint all packages |
 | `pnpm typecheck` | Run `tsc --noEmit` across all packages |
@@ -46,7 +46,8 @@ apps/web/src/
 packages/db/src/
   schema/               # Drizzle table definitions, enums, relations
   queries/              # Reusable query helpers
-  client.ts             # Singleton Drizzle client factory
+  client.ts             # Singleton Drizzle client factory (better-sqlite3, WAL + foreign_keys)
+  fts.ts                # FTS5 virtual table + sync triggers for full-text search
 packages/mcp-server/src/
   tools/                # 25 MCP tools organized by domain
   services/             # Audit logger, idempotency checker
@@ -86,7 +87,7 @@ packages/mcp-server/src/
 - **Node.js >=20 required** — `.nvmrc` is set to 20. Run `nvm use` before working. Tailwind CSS 4's `@tailwindcss/oxide` native bindings require Node 20+.
 
 Generated automatically by `scripts/dev.sh` on first run:
-- `PGLITE_DATA_DIR` — PGlite data directory (default: `./data/pglite`)
+- `SQLITE_DB_PATH` — SQLite database file path (default: `./data/tasks.db`)
 - `MCP_API_KEY` — Bearer token for MCP server auth (auto-generated hex)
 - `MCP_PORT` — MCP server port (default: 3100)
 - `NEXT_PUBLIC_APP_URL` — Web app URL (default: `http://localhost:3000`)
@@ -97,13 +98,15 @@ Generated automatically by `scripts/dev.sh` on first run:
 
 - **Tailwind 4 CSS vars**: Use `[var(--my-var)]` syntax, not bare `[--my-var]` — Tailwind 4 broke the old syntax
 - **Seed is destructive for system views**: `db:seed` deletes all system views before re-inserting (intentional for idempotency)
-- **Drizzle client singleton**: `createDb()` caches per connection URL — don't create multiple instances
+- **Drizzle client singleton**: `createDb()` caches per database path — don't create multiple instances. WAL and `foreign_keys = ON` pragmas are set on open
 - **MCP sessions**: Each POST to `/mcp` creates a new session with its own transport — no shared global state
 - **Dark mode colors**: Use semantic CSS variables (`--status-*`, `--priority-*`, etc.) which have light/dark variants built in. Avoid hardcoded Tailwind color classes (e.g., `text-blue-700`) — use `text-[var(--status-active)]` instead
 - **No auth in v1**: Single API key for everything. No user sessions or login flow yet
 - **Subtask auto-complete**: Completing a parent task with incomplete subtasks triggers a warning; on confirm, all subtasks are auto-marked done
 - **Virtual scrolling**: TaskList uses `@tanstack/react-virtual`
-- **PGlite single-writer**: Only one process can open a PGlite data directory at a time. In dev, web and mcp-server use separate data dirs. In production K8s, a unified server.ts runs both in one process
+- **SQLite WAL, single file**: With `journal_mode = WAL`, multiple processes can open the same DB file (concurrent readers + a single writer). In dev, web and mcp-server share one `SQLITE_DB_PATH` (`./data/tasks.db`). In production K8s, a unified server.ts runs both in one process against `/data/tasks.db`
+- **Full-text search via FTS5**: Search uses the `tasks_fts` virtual table kept in sync by triggers (`setupFts()` in `packages/db/src/fts.ts`), not Postgres `tsvector`
+- **Real-time events**: `LISTEN/NOTIFY` no longer exists. `/api/events` is a heartbeat-only SSE stream; change propagation for the Baker Street platform runs over NATS at the extension layer
 
 ## Deployment (K8s)
 

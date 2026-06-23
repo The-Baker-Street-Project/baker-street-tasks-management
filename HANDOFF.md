@@ -4,13 +4,23 @@
 
 Baker Street Tasks is an AI-first to-do app built as a pnpm monorepo with three packages:
 
-- **`packages/db`** — Drizzle ORM schema, migrations, and seed script (Postgres 17)
-- **`packages/mcp-server`** — Express 5 MCP server (34 tools, Streamable HTTP transport)
+- **`packages/db`** — Drizzle ORM schema, migrations, and seed script (SQLite via better-sqlite3)
+- **`packages/mcp-server`** — Express 5 MCP server (25 tools, Streamable HTTP transport)
 - **`apps/web`** — Next.js 15 App Router frontend (React 19, Tailwind 4, shadcn/ui)
 
-Local development runs via Docker (Postgres) + `pnpm dev`.
+Local development runs via `pnpm dev` — no external database container required (SQLite is in-process).
 
 ## What Was Done
+
+### Session: 2026-06-23 — PGlite → better-sqlite3 migration
+
+Migrated the persistence layer off PGlite (in-process WASM Postgres) onto **better-sqlite3** (commit `6f84de2`, branch `bak-139-pglite-to-sqlite`).
+
+- **Client (`packages/db/src/client.ts`)** — swapped `drizzle-orm/pglite` for `drizzle-orm/better-sqlite3`. `createDb()` now opens a SQLite file and sets `journal_mode = WAL` and `foreign_keys = ON`. `getPgliteClient()` → `getSqliteClient()`.
+- **Drizzle config** — `dialect: "sqlite"`; the four Postgres migrations (`0000`–`0003`, incl. search vectors, entity-change NOTIFY, captures removal) were regenerated as a single SQLite migration `0000_ancient_terrax.sql`.
+- **Env var** — `PGLITE_DATA_DIR=./data/pglite` → `SQLITE_DB_PATH=./data/tasks.db` (updated in `.env.example`, `scripts/dev.sh`, `docker-compose.yml`, `k8s/configmap.yaml`, `k8s/extension.yaml`, `apps/web/server.ts`).
+- **Full-text search** — Postgres `tsvector` columns replaced by an FTS5 virtual table (`tasks_fts`) with INSERT/UPDATE/DELETE sync triggers, set up by `setupFts()` in the new `packages/db/src/fts.ts`.
+- **Real-time events** — Postgres `LISTEN/NOTIFY` (`pg_notify("entity_change")`) is gone. `apps/web/src/app/api/events/route.ts` is now a heartbeat-only SSE stream; NATS is the primary change-propagation mechanism at the extension layer.
 
 ### Session: 2026-02-12
 
