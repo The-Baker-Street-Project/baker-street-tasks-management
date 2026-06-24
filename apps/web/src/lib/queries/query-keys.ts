@@ -21,4 +21,9 @@ export const queryKeys = {
     all: ["views"] as const,
     list: (type?: string) => [...queryKeys.views.all, "list", type] as const,
   },
+  projects: {
+    all: ["projects"] as const,
+    tree: () => [...queryKeys.projects.all, "tree"] as const,
+    detail: (id: string) => [...queryKeys.projects.all, "detail", id] as const,
+  },
 } as const;

@@ -6,18 +6,26 @@ import { BottomNav } from "./bottom-nav";
 import { CommandMenu } from "@/components/shared/CommandMenu";
 import { CreateFab } from "@/components/shared/CreateFab";
 import { ThemeToggle } from "./theme-toggle";
-import type { SavedView, Tag } from "@/types";
+import type { SavedView, Tag, Project } from "@/types";
+
+export interface ProjectTreeNode {
+  id: string | null;
+  name: string;
+  color: string | null;
+  projects: Project[];
+}
 
 interface ShellLayoutProps {
   children: React.ReactNode;
   savedViews: SavedView[];
   tags: Tag[];
+  projectsTree: ProjectTreeNode[];
 }
 
-export function ShellLayout({ children, savedViews, tags }: ShellLayoutProps) {
+export function ShellLayout({ children, savedViews, tags, projectsTree }: ShellLayoutProps) {
   return (
     <SidebarProvider>
-      <AppSidebar savedViews={savedViews} tags={tags} />
+      <AppSidebar savedViews={savedViews} tags={tags} projectsTree={projectsTree} />
       <SidebarInset>
         <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 md:hidden">
           <SidebarTrigger />
