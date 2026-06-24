@@ -26,8 +26,7 @@ import {
 import { ContextToggle } from "./context-toggle";
 import { ThemeToggle } from "./theme-toggle";
 import { ProjectsNav } from "@/components/projects/ProjectsNav";
-import type { SavedView, Tag } from "@/types";
-import type { ProjectTreeNode } from "@/components/shell/shell-layout";
+import type { SavedView, Tag, ProjectTreeNode } from "@/types";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },

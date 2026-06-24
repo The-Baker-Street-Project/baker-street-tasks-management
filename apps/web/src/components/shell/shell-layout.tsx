@@ -6,14 +6,7 @@ import { BottomNav } from "./bottom-nav";
 import { CommandMenu } from "@/components/shared/CommandMenu";
 import { CreateFab } from "@/components/shared/CreateFab";
 import { ThemeToggle } from "./theme-toggle";
-import type { SavedView, Tag, Project } from "@/types";
-
-export interface ProjectTreeNode {
-  id: string | null;
-  name: string;
-  color: string | null;
-  projects: Project[];
-}
+import type { SavedView, Tag, ProjectTreeNode } from "@/types";
 
 interface ShellLayoutProps {
   children: React.ReactNode;

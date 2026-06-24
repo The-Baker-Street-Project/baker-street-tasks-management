@@ -44,12 +44,15 @@ import {
   TagsPanel,
   AIMetadataPanel,
 } from "./TaskDetailPanels";
+import { ProjectPicker } from "@/components/projects/ProjectPicker";
 import { updateTask, deleteTask, removeTagFromTask, addTagToTask, toggleSubtask } from "@/lib/api/tasks";
-import type { Task, TaskStatus, Priority, Context, Tag } from "@/types";
+import { setTaskProjects } from "@/lib/api/projects";
+import type { Task, TaskStatus, Priority, Context, Tag, ProjectTreeNode } from "@/types";
 
 interface TaskDetailProps {
   task: Task;
   allTags?: Tag[];
+  projectTree?: ProjectTreeNode[];
   onClose: () => void;
   onRefresh: () => void;
 }
@@ -57,7 +60,7 @@ interface TaskDetailProps {
 const STATUSES: TaskStatus[] = ["Inbox", "Active", "Someday", "Done", "Archived"];
 const PRIORITIES: Priority[] = ["P0", "P1", "P2", "P3"];
 
-export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProps) {
+export function TaskDetail({ task, allTags, projectTree = [], onClose, onRefresh }: TaskDetailProps) {
   const [title, setTitle] = useState(task.title);
   const [notes, setNotes] = useState(task.notes ?? "");
   const [status, setStatus] = useState<TaskStatus>(task.status);
@@ -235,6 +238,17 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
         onRefresh();
       } catch {
         toast.error("Failed to update tags");
+      }
+    });
+  };
+
+  const handleSetProjects = (projectIds: string[]) => {
+    startTransition(async () => {
+      try {
+        await setTaskProjects(task.id, projectIds);
+        onRefresh();
+      } catch {
+        toast.error("Failed to update projects");
       }
     });
   };
@@ -517,6 +531,15 @@ export function TaskDetail({ task, allTags, onClose, onRefresh }: TaskDetailProp
             allTags={allTags}
             onRemoveTag={handleRemoveTag}
             onAddTag={handleAddTag}
+          />
+
+          <Separator />
+
+          {/* Projects */}
+          <ProjectPicker
+            projects={task.projects ?? []}
+            projectTree={projectTree}
+            onChange={handleSetProjects}
           />
 
           {/* AI Metadata */}

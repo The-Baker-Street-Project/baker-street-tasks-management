@@ -1,14 +1,14 @@
 import { getTasks } from "@/lib/api/tasks";
 import { getSavedViews, getTags } from "@/lib/api/views";
-import { listProjects } from "@/lib/api/projects";
+import { getProjectsTree } from "@/lib/api/projects";
 import { TasksPageClient } from "./tasks-page-client";
 
 export default async function TasksPage() {
-  const [tasks, savedViews, tags, projects] = await Promise.all([
+  const [tasks, savedViews, tags, projectTree] = await Promise.all([
     getTasks(),
     getSavedViews("Tasks"),
     getTags(),
-    listProjects(),
+    getProjectsTree(),
   ]);
 
   return (
@@ -16,7 +16,7 @@ export default async function TasksPage() {
       initialTasks={tasks}
       savedViews={savedViews}
       tags={tags}
-      projects={projects}
+      projectTree={projectTree}
     />
   );
 }

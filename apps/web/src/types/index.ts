@@ -24,6 +24,13 @@ export interface Project {
   updatedAt: Date;
 }
 
+export interface ProjectTreeNode {
+  id: string | null;
+  name: string;
+  color: string | null;
+  projects: Project[];
+}
+
 export type TaskStatus = "Inbox" | "Active" | "Someday" | "Done" | "Archived";
 export type Context = "Home" | "Work";
 export type Priority = "P0" | "P1" | "P2" | "P3";

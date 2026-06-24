@@ -14,7 +14,7 @@ import {
   SidebarMenuSubButton,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import type { ProjectTreeNode } from "@/components/shell/shell-layout";
+import type { ProjectTreeNode } from "@/types";
 
 interface ProjectsNavProps {
   tree: ProjectTreeNode[];

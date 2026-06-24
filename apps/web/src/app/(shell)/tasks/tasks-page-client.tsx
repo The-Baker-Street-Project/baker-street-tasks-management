@@ -7,7 +7,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { TaskDetail } from "@/components/tasks/TaskDetail";
 import { TaskCreateDialog } from "@/components/tasks/TaskCreateDialog";
 import { getTasks, getTask } from "@/lib/api/tasks";
-import type { Task, SavedView, Tag, Context, Project } from "@/types";
+import type { Task, SavedView, Tag, Context, ProjectTreeNode } from "@/types";
 
 const VALID_CONTEXTS = ["Home", "Work"] as const;
 
@@ -15,14 +15,14 @@ interface TasksPageClientProps {
   initialTasks: Task[];
   savedViews: SavedView[];
   tags: Tag[];
-  projects: Project[];
+  projectTree: ProjectTreeNode[];
 }
 
 export function TasksPageClient({
   initialTasks,
   savedViews,
   tags,
-  projects,
+  projectTree,
 }: TasksPageClientProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -36,6 +36,7 @@ export function TasksPageClient({
 
   const viewTitle = (() => {
     if (selectedProject) {
+      const projects = projectTree.flatMap((n) => n.projects);
       const project = projects.find((p) => p.id === selectedProject);
       return project ? `Project: ${project.name}` : "Project Tasks";
     }
@@ -129,6 +130,7 @@ export function TasksPageClient({
           <TaskDetail
             task={currentTask}
             allTags={tags}
+            projectTree={projectTree}
             onClose={() => {
               setSelectedTaskId(null);
               setSelectedTask(null);
