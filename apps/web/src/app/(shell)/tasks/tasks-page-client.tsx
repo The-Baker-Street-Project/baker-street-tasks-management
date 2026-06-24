@@ -7,7 +7,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { TaskDetail } from "@/components/tasks/TaskDetail";
 import { TaskCreateDialog } from "@/components/tasks/TaskCreateDialog";
 import { getTasks, getTask } from "@/lib/api/tasks";
-import type { Task, SavedView, Tag, Context } from "@/types";
+import type { Task, SavedView, Tag, Context, Project } from "@/types";
 
 const VALID_CONTEXTS = ["Home", "Work"] as const;
 
@@ -15,12 +15,14 @@ interface TasksPageClientProps {
   initialTasks: Task[];
   savedViews: SavedView[];
   tags: Tag[];
+  projects: Project[];
 }
 
 export function TasksPageClient({
   initialTasks,
   savedViews,
   tags,
+  projects,
 }: TasksPageClientProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -28,10 +30,15 @@ export function TasksPageClient({
   const [selectedTaskId, setSelectedTaskId] = useQueryState("taskId");
   const [selectedView] = useQueryState("view", { defaultValue: "all" });
   const [selectedTag] = useQueryState("tag");
+  const [selectedProject] = useQueryState("project");
   const [contextParam] = useQueryState("context");
   const [isPending, startTransition] = useTransition();
 
   const viewTitle = (() => {
+    if (selectedProject) {
+      const project = projects.find((p) => p.id === selectedProject);
+      return project ? `Project: ${project.name}` : "Project Tasks";
+    }
     if (selectedTag) {
       const tag = tags.find((t) => t.id === selectedTag);
       return tag ? `Tag: ${tag.name}` : "Tagged Tasks";
@@ -55,6 +62,7 @@ export function TasksPageClient({
         const updated = await getTasks({
           view: selectedView ?? undefined,
           tagId: selectedTag ?? undefined,
+          projectId: selectedProject ?? undefined,
           context: context ?? undefined,
         });
         setTasks(updated);
@@ -62,7 +70,7 @@ export function TasksPageClient({
         // silently fail
       }
     });
-  }, [selectedView, selectedTag, contextParam]);
+  }, [selectedView, selectedTag, selectedProject, contextParam]);
 
   const handleTaskSelect = useCallback(
     async (taskId: string | null) => {
@@ -92,7 +100,7 @@ export function TasksPageClient({
 
   useEffect(() => {
     refreshTasks();
-  }, [selectedView, selectedTag, contextParam, refreshTasks]);
+  }, [selectedView, selectedTag, selectedProject, contextParam, refreshTasks]);
 
   return (
     <div className="flex h-full">
