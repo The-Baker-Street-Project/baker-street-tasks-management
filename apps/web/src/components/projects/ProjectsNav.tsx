@@ -8,6 +8,7 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
+  SidebarMenuButton,
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
@@ -31,7 +32,11 @@ export function ProjectsNav({ tree }: ProjectsNavProps) {
           <SidebarMenu>
             {tree.map((areaNode) => (
               <SidebarMenuItem key={areaNode.id ?? "__no_area__"}>
-                <div className="flex items-center gap-2 px-2 py-1 text-xs font-medium text-sidebar-foreground/70">
+                <SidebarMenuButton
+                  tabIndex={-1}
+                  size="sm"
+                  className="pointer-events-none cursor-default text-xs font-medium text-sidebar-foreground/70 hover:bg-transparent hover:text-sidebar-foreground/70"
+                >
                   <FolderKanban className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{areaNode.name}</span>
                   {areaNode.color && (
@@ -40,7 +45,7 @@ export function ProjectsNav({ tree }: ProjectsNavProps) {
                       style={{ backgroundColor: areaNode.color }}
                     />
                   )}
-                </div>
+                </SidebarMenuButton>
                 {areaNode.projects.length > 0 && (
                   <SidebarMenuSub>
                     {areaNode.projects.map((project) => (
