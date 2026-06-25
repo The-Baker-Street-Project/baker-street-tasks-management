@@ -1,5 +1,36 @@
 // Types derived from the DB schema in @baker-street/db
 
+export type EntityStatus = "Active" | "Archived";
+
+export interface Area {
+  id: string;
+  name: string;
+  color: string | null;
+  status: EntityStatus;
+  orderIndex: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Project {
+  id: string;
+  areaId: string | null;
+  name: string;
+  description: string | null;
+  color: string | null;
+  status: EntityStatus;
+  orderIndex: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ProjectTreeNode {
+  id: string | null;
+  name: string;
+  color: string | null;
+  projects: Project[];
+}
+
 export type TaskStatus = "Inbox" | "Active" | "Someday" | "Done" | "Archived";
 export type Context = "Home" | "Work";
 export type Priority = "P0" | "P1" | "P2" | "P3";
@@ -49,6 +80,7 @@ export interface Task {
   updatedAt: Date;
   subtasks?: Subtask[];
   tags?: Tag[];
+  projects?: Project[];
 }
 
 export interface SavedView {

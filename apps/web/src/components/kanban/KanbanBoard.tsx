@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { KanbanColumn } from "./KanbanColumn";
 import { KanbanCard } from "./KanbanCard";
+import { KanbanSwimLane } from "./KanbanSwimLane";
+import { Button } from "@/components/ui/button";
 import { updateTask } from "@/lib/api/tasks";
 import type { Task, TaskStatus } from "@/types";
 
@@ -35,6 +37,7 @@ export function KanbanBoard({ tasks, onRefresh }: KanbanBoardProps) {
   const [localTasks, setLocalTasks] = useState<Task[]>(tasks);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [groupBy, setGroupBy] = useState<"status" | "project">("status");
 
   // Keep local tasks in sync with prop updates
   if (tasks !== localTasks && !activeTask) {
@@ -209,48 +212,105 @@ export function KanbanBoard({ tasks, onRefresh }: KanbanBoardProps) {
     [router]
   );
 
+  // Build project lanes for project-grouping mode
+  const projectLanes = (() => {
+    const seen = new Map<string, { id: string; name: string }>();
+    for (const task of localTasks) {
+      for (const p of task.projects ?? []) {
+        if (!seen.has(p.id)) seen.set(p.id, { id: p.id, name: p.name });
+      }
+    }
+    return Array.from(seen.values()).sort((a, b) => a.name.localeCompare(b.name));
+  })();
+
+  const noProjectTasks = localTasks.filter((t) => !(t.projects?.length));
+
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-6 py-3">
         <h2 className="text-lg font-semibold">Kanban Board</h2>
-        {isPending && (
-          <span className="text-xs text-muted-foreground">Saving...</span>
-        )}
+        <div className="flex items-center gap-3">
+          {isPending && (
+            <span className="text-xs text-muted-foreground">Saving...</span>
+          )}
+          <div className="flex items-center gap-1">
+            <Button
+              size="sm"
+              variant={groupBy === "status" ? "default" : "outline"}
+              onClick={() => setGroupBy("status")}
+            >
+              Status
+            </Button>
+            <Button
+              size="sm"
+              variant={groupBy === "project" ? "default" : "outline"}
+              onClick={() => setGroupBy("project")}
+            >
+              Project
+            </Button>
+          </div>
+        </div>
       </div>
 
       {/* Board */}
-      <div className="flex-1 overflow-x-auto p-4">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragOver={handleDragOver}
-          onDragEnd={handleDragEnd}
-        >
-          <div className="flex gap-4 h-full">
-            {COLUMNS.map((status) => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                tasks={tasksByStatus[status]}
+      {groupBy === "status" ? (
+        <div className="flex-1 overflow-x-auto p-4">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+          >
+            <div className="flex gap-4 h-full">
+              {COLUMNS.map((status) => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  tasks={tasksByStatus[status]}
+                  onTaskClick={handleTaskClick}
+                />
+              ))}
+            </div>
+
+            <DragOverlay>
+              {activeTask ? (
+                <div className="rotate-3 opacity-90">
+                  <KanbanCard
+                    task={activeTask}
+                    onClick={() => {}}
+                  />
+                </div>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex flex-col gap-6">
+            {projectLanes.map((project) => (
+              <KanbanSwimLane
+                key={project.id}
+                label={project.name}
+                tasks={localTasks.filter((t) =>
+                  (t.projects ?? []).some((p) => p.id === project.id)
+                )}
+                columns={COLUMNS}
                 onTaskClick={handleTaskClick}
               />
             ))}
+            {noProjectTasks.length > 0 && (
+              <KanbanSwimLane
+                label="No Project"
+                tasks={noProjectTasks}
+                columns={COLUMNS}
+                onTaskClick={handleTaskClick}
+              />
+            )}
           </div>
-
-          <DragOverlay>
-            {activeTask ? (
-              <div className="rotate-3 opacity-90">
-                <KanbanCard
-                  task={activeTask}
-                  onClick={() => {}}
-                />
-              </div>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,4 +4,6 @@ export * from "./subtasks";
 export * from "./tags";
 export * from "./views";
 export * from "./audit";
+export * from "./areas";
+export * from "./projects";
 export * from "./relations";

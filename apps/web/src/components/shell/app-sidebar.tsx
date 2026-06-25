@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/sidebar";
 import { ContextToggle } from "./context-toggle";
 import { ThemeToggle } from "./theme-toggle";
-import type { SavedView, Tag } from "@/types";
+import { ProjectsNav } from "@/components/projects/ProjectsNav";
+import type { SavedView, Tag, ProjectTreeNode } from "@/types";
 
 const NAV_ITEMS = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -38,9 +39,10 @@ const NAV_ITEMS = [
 interface AppSidebarProps {
   savedViews?: SavedView[];
   tags?: Tag[];
+  projectsTree?: ProjectTreeNode[];
 }
 
-export function AppSidebar({ savedViews = [], tags = [] }: AppSidebarProps) {
+export function AppSidebar({ savedViews = [], tags = [], projectsTree = [] }: AppSidebarProps) {
   const pathname = usePathname();
 
   const customViews = savedViews.filter((v) => !v.isSystem && !v.isHidden);
@@ -111,6 +113,8 @@ export function AppSidebar({ savedViews = [], tags = [] }: AppSidebarProps) {
             </SidebarGroup>
           </>
         )}
+
+        <ProjectsNav tree={projectsTree} />
 
         {tags.length > 0 && (
           <>
