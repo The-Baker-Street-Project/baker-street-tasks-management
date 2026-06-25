@@ -1,6 +1,6 @@
 "use client";
 
-import { KanbanColumn } from "./KanbanColumn";
+import { KanbanColumnStatic } from "./KanbanColumn";
 import type { Task, TaskStatus } from "@/types";
 
 interface KanbanSwimLaneProps {
@@ -31,7 +31,7 @@ export function KanbanSwimLane({
       </h3>
       <div className="flex gap-4 overflow-x-auto pb-4">
         {columns.map((status) => (
-          <KanbanColumn
+          <KanbanColumnStatic
             key={status}
             status={status}
             tasks={tasksByStatus[status] ?? []}

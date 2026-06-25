@@ -300,7 +300,7 @@ export function KanbanBoard({ tasks, onRefresh }: KanbanBoardProps) {
                 onTaskClick={handleTaskClick}
               />
             ))}
-            {(noProjectTasks.length > 0 || projectLanes.length === 0) && (
+            {noProjectTasks.length > 0 && (
               <KanbanSwimLane
                 label="No Project"
                 tasks={noProjectTasks}
