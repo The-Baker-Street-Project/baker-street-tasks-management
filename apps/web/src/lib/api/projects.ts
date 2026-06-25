@@ -16,6 +16,25 @@ function getDb() {
 function nextOrderIndex() {
   return Date.now().toString(36);
 }
+
+async function areaNameExists(db: ReturnType<typeof createDb>, name: string, excludeId?: string): Promise<boolean> {
+  const rows = await db.select({ id: areas.id }).from(areas).where(eq(areas.name, name));
+  return rows.some((r) => r.id !== excludeId);
+}
+
+async function projectNameExists(
+  db: ReturnType<typeof createDb>,
+  areaId: string | null,
+  name: string,
+  excludeId?: string
+): Promise<boolean> {
+  const where =
+    areaId === null
+      ? and(isNull(projects.areaId), eq(projects.name, name))
+      : and(eq(projects.areaId, areaId), eq(projects.name, name));
+  const rows = await db.select({ id: projects.id }).from(projects).where(where);
+  return rows.some((r) => r.id !== excludeId);
+}
 function mapArea(row: typeof areas.$inferSelect): Area {
   return {
     id: row.id,
@@ -49,6 +68,7 @@ export async function listAreas(): Promise<Area[]> {
 }
 export async function createArea(input: { name: string; color?: string | null }): Promise<Area> {
   const db = getDb();
+  if (await areaNameExists(db, input.name)) throw new Error(`An area named "${input.name}" already exists`);
   const [row] = await db
     .insert(areas)
     .values({ name: input.name, color: input.color ?? null, orderIndex: nextOrderIndex(), createdBy: "web_ui" })
@@ -57,6 +77,9 @@ export async function createArea(input: { name: string; color?: string | null })
 }
 export async function renameArea(id: string, name: string): Promise<Area> {
   const db = getDb();
+  const existing = await db.select().from(areas).where(eq(areas.id, id)).limit(1);
+  if (existing[0] && name !== existing[0].name && (await areaNameExists(db, name, id)))
+    throw new Error(`An area named "${name}" already exists`);
   const [row] = await db.update(areas).set({ name, updatedAt: new Date().toISOString() }).where(eq(areas.id, id)).returning();
   return mapArea(row);
 }
@@ -84,11 +107,14 @@ export async function createProject(input: {
   color?: string | null;
 }): Promise<Project> {
   const db = getDb();
+  const areaId = input.areaId ?? null;
+  if (await projectNameExists(db, areaId, input.name))
+    throw new Error(`A project named "${input.name}" already exists in this area`);
   const [row] = await db
     .insert(projects)
     .values({
       name: input.name,
-      areaId: input.areaId ?? null,
+      areaId,
       description: input.description ?? null,
       color: input.color ?? null,
       orderIndex: nextOrderIndex(),
@@ -102,6 +128,13 @@ export async function updateProject(
   patch: { name?: string; areaId?: string | null; description?: string | null; color?: string | null }
 ): Promise<Project> {
   const db = getDb();
+  const existing = await db.select().from(projects).where(eq(projects.id, id)).limit(1);
+  if (existing[0] && (patch.name !== undefined || patch.areaId !== undefined)) {
+    const nextAreaId = patch.areaId !== undefined ? patch.areaId : existing[0].areaId;
+    const nextName = patch.name ?? existing[0].name;
+    if (await projectNameExists(db, nextAreaId, nextName, id))
+      throw new Error(`A project named "${nextName}" already exists in this area`);
+  }
   const data: Record<string, unknown> = { updatedAt: new Date().toISOString() };
   if (patch.name !== undefined) data.name = patch.name;
   if (patch.areaId !== undefined) data.areaId = patch.areaId;

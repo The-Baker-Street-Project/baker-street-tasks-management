@@ -50,4 +50,31 @@ describe("Web server actions — projects", () => {
     const detail = await getProjectDetail(p.id);
     expect(detail!.progress).toEqual({ done: 1, total: 1 });
   });
+
+  it("createArea rejects duplicate name", async () => {
+    const { createArea } = await import("../../lib/api/projects");
+    await createArea({ name: "Dup" });
+    await expect(createArea({ name: "Dup" })).rejects.toThrow();
+  });
+
+  it("createProject rejects duplicate name in same area", async () => {
+    const { createArea, createProject } = await import("../../lib/api/projects");
+    const area = await createArea({ name: "MyArea" });
+    await createProject({ name: "SameProj", areaId: area.id });
+    await expect(createProject({ name: "SameProj", areaId: area.id })).rejects.toThrow();
+  });
+
+  it("createProject rejects duplicate name in null (No Area) bucket", async () => {
+    const { createProject } = await import("../../lib/api/projects");
+    await createProject({ name: "NullDup", areaId: null });
+    await expect(createProject({ name: "NullDup", areaId: null })).rejects.toThrow();
+  });
+
+  it("updateProject rejects rename that collides with sibling in same area", async () => {
+    const { createArea, createProject, updateProject } = await import("../../lib/api/projects");
+    const area = await createArea({ name: "CollisionArea" });
+    await createProject({ name: "Alpha", areaId: area.id });
+    const beta = await createProject({ name: "Beta", areaId: area.id });
+    await expect(updateProject(beta.id, { name: "Alpha" })).rejects.toThrow();
+  });
 });
