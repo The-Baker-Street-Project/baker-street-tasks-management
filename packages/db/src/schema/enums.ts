@@ -35,5 +35,6 @@ export type EntityType = (typeof entityTypeValues)[number];
 export const entityStatusValues = ["Active", "Archived"] as const;
 export type EntityStatus = (typeof entityStatusValues)[number];
 
+
 export const savedViewTypeValues = ["Tasks", "KanbanLane"] as const;
 export type SavedViewType = (typeof savedViewTypeValues)[number];
