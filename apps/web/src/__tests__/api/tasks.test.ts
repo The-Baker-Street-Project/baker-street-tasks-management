@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from "vitest";
 import { createTestDb } from "@baker-street/db/test-helpers";
-import { tasks, subtasks, taskTags, tags } from "@baker-street/db/schema";
+import { tasks, subtasks, taskTags, tags, projects, taskProjects } from "@baker-street/db/schema";
 import type { Database } from "@baker-street/db/client";
 
 // Module-level variable — captured by reference in the mock closure.
@@ -27,9 +27,11 @@ describe("Web server actions — tasks", () => {
   beforeEach(async () => {
     // Delete in FK-safe order
     await testDb.delete(taskTags);
+    await testDb.delete(taskProjects);
     await testDb.delete(subtasks);
     await testDb.delete(tasks);
     await testDb.delete(tags);
+    await testDb.delete(projects);
   });
 
   // ── createTask ──────────────────────────────────────────────────
@@ -211,6 +213,24 @@ describe("Web server actions — tasks", () => {
       const withoutTag = await getTask(task.id);
       expect(withoutTag).not.toBeNull();
       expect(withoutTag!.tags).toHaveLength(0);
+    });
+  });
+
+  // ── getTasks projectId filter ───────────────────────────────────
+
+  describe("getTasks projectId filter", () => {
+    it("returns only tasks linked to the given project, with projects populated", async () => {
+      const { createTask, getTasks } = await import("../../lib/api/tasks");
+      const { createProject, setTaskProjects } = await import("../../lib/api/projects");
+      const a = await createTask({ title: "linked" });
+      await createTask({ title: "unlinked" });
+      const p = await createProject({ name: "Proj" });
+      await setTaskProjects(a.id, [p.id]);
+
+      const rows = await getTasks({ projectId: p.id });
+      expect(rows).toHaveLength(1);
+      expect(rows[0].title).toBe("linked");
+      expect(rows[0].projects?.[0].name).toBe("Proj");
     });
   });
 });

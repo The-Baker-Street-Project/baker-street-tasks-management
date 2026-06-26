@@ -8,7 +8,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "passThroughEnv": ["PGLITE_DATA_DIR", "MCP_API_KEY", "MCP_PORT", "NEXT_PUBLIC_APP_URL"]
+      "passThroughEnv": ["SQLITE_DB_PATH", "MCP_API_KEY", "MCP_PORT", "NEXT_PUBLIC_APP_URL"]
     },
     "lint": {
       "dependsOn": ["^build"]
@@ -21,16 +21,16 @@
     },
     "db:migrate": {
       "cache": false,
-      "passThroughEnv": ["PGLITE_DATA_DIR"]
+      "passThroughEnv": ["SQLITE_DB_PATH"]
     },
     "db:seed": {
       "cache": false,
-      "passThroughEnv": ["PGLITE_DATA_DIR"]
+      "passThroughEnv": ["SQLITE_DB_PATH"]
     },
     "db:studio": {
       "cache": false,
       "persistent": true,
-      "passThroughEnv": ["PGLITE_DATA_DIR"]
+      "passThroughEnv": ["SQLITE_DB_PATH"]
     }
   }
 }

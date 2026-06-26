@@ -7,6 +7,8 @@ import {
   taskTags,
   tags,
   savedViews,
+  taskProjects,
+  projects,
 } from "@baker-street/db/schema";
 import {
   eq,
@@ -31,6 +33,7 @@ export interface GetTasksParams {
   status?: TaskStatus[];
   view?: string;
   tagId?: string;
+  projectId?: string;
   context?: Context | null;
   sort?: "due_date" | "priority" | "created" | "order";
 }
@@ -44,6 +47,7 @@ function mapTask(
   row: typeof tasks.$inferSelect & {
     subtasks?: (typeof subtasks.$inferSelect)[];
     taskTags?: { tag: typeof tags.$inferSelect }[];
+    taskProjects?: { project: typeof projects.$inferSelect }[];
   }
 ): Task {
   return {
@@ -84,6 +88,17 @@ function mapTask(
       name: tt.tag.name,
       color: tt.tag.color,
       createdAt: new Date(tt.tag.createdAt),
+    })),
+    projects: row.taskProjects?.map((tp) => ({
+      id: tp.project.id,
+      areaId: tp.project.areaId,
+      name: tp.project.name,
+      description: tp.project.description,
+      color: tp.project.color,
+      status: tp.project.status,
+      orderIndex: tp.project.orderIndex,
+      createdAt: new Date(tp.project.createdAt),
+      updatedAt: new Date(tp.project.updatedAt),
     })),
   };
 }
@@ -152,6 +167,16 @@ export async function getTasks(params?: GetTasksParams): Promise<Task[]> {
     conditions.push(inArray(tasks.id, ids));
   }
 
+  if (params?.projectId) {
+    const linked = await db
+      .select({ taskId: taskProjects.taskId })
+      .from(taskProjects)
+      .where(eq(taskProjects.projectId, params.projectId));
+    const ids = linked.map((r) => r.taskId);
+    if (ids.length === 0) return [];
+    conditions.push(inArray(tasks.id, ids));
+  }
+
   const orderByClause =
     params?.sort === "due_date"
       ? asc(tasks.dueAt)
@@ -166,6 +191,7 @@ export async function getTasks(params?: GetTasksParams): Promise<Task[]> {
     with: {
       subtasks: { orderBy: asc(subtasks.orderIndex) },
       taskTags: { with: { tag: true } },
+      taskProjects: { with: { project: true } },
     },
     orderBy: orderByClause,
   });
@@ -180,6 +206,7 @@ export async function getTask(id: string): Promise<Task | null> {
     with: {
       subtasks: { orderBy: asc(subtasks.orderIndex) },
       taskTags: { with: { tag: true } },
+      taskProjects: { with: { project: true } },
     },
   });
   if (!row) return null;
