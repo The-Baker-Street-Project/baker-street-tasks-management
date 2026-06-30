@@ -10,52 +10,35 @@ Baker Street Tasks is an AI-first to-do app built as a pnpm monorepo with three 
 
 Local development runs via `pnpm dev` — no external database container required (SQLite is in-process).
 
-## Active Work — RESUME HERE (2026-06-23)
+## Active Work — RESUME HERE (2026-06-30)
 
-### In progress: Projects feature brainstorm (superpowers:brainstorming)
+No work in progress. Branch `main` is clean and fully merged through **PR #4** (`d0990c4`). The two big efforts that were mid-flight in the previous handoff — the PGlite→SQLite migration and the Projects feature — have both shipped.
 
-Designing a first-class **Projects** feature so tasks can be classified like "3D Printing / Bracket". Mid-brainstorm — design approved through Section 1, Section 2 presented and awaiting two confirmations.
+### Shipped: PGlite → SQLite migration (PRs #3, #4)
 
-**Locked requirements:**
-- **Structure:** two-level **Area → Project** (Areas contain Projects; tasks attach to Projects).
-- **Task ↔ Project:** **many-to-many** via a join table (like tags). User accepted the overlap-with-tags; what makes a project distinct is the Area parent + project metadata + a dedicated page.
-- **Project fields:** `status` (Active/Archived), `color`, `description`, derived **progress rollup**.
-- **UI surfaces (all four):** sidebar nav (Areas→Projects, click filters task list), project detail page, task-detail project picker, kanban swimlanes by project.
-- **MCP:** full CRUD + assign.
+Persistence layer is now **better-sqlite3** (in-process, WAL, `foreign_keys = ON`), full-text search via the FTS5 `tasks_fts` virtual table + sync triggers, real-time events reduced to a heartbeat-only SSE stream (NATS carries change propagation at the extension layer). See "What Was Done → 2026-06-23" below for the file-level detail.
 
-**Section 1 — Data model: APPROVED.** Three new tables mirroring `tags`/`task_tags`:
-- `areas` — id, name, color?, status (Active/Archived), orderIndex, timestamps + AI metadata.
-- `projects` — id, **areaId nullable** (ungrouped → "No Area" bucket), name, description?, color?, status, orderIndex, timestamps + AI metadata.
-- `task_projects` — taskId, projectId, unique(taskId, projectId), cascade. Twin of `task_tags`.
-- Add `"area"` and `"project"` to the `entityType` enum array (`packages/db/src/schema/enums.ts`).
-- Approved decisions: areaId nullable; soft-delete via status only (archiving an Area hides it + its projects, keeps links); project name unique **within area**, area name unique globally; progress = done ÷ non-archived linked tasks, computed in-query (no stored column), 0 tasks → "no tasks"; **projects NOT in global FTS in v1** (follow-up).
+### Shipped: Projects feature — Area → Project hierarchy (PR #4)
 
-**Section 2 — Queries / server actions / UI data flow: PRESENTED, awaiting answers to:**
-1. OK that a multi-project task renders as a **duplicate card across kanban swimlanes** (one per project)?
-2. OK for the **project detail page to reuse the existing `TaskList` component** (vs a bespoke layout)?
+Two-level **Area → Project** classification, tasks attach to projects many-to-many. All as designed in the prior brainstorm:
 
-Section 2 content to carry forward: query helpers in `packages/db/src/queries/projects.ts` (`listAreasWithProjects`, `getProjectWithProgress`, `listProjectsForTask`); server actions in `apps/web/src/lib/api/projects.ts` (area + project CRUD, `setTaskProjects` diff-and-apply, all audited); TanStack Query keys `['projects','tree']` / `['projects', id]`; new nuqs `projectId` filter param joined on `task_projects`; new `ProjectPicker` (copy of `TagSelector`); new route `app/(shell)/projects/[id]/page.tsx`.
+- **Schema** (`packages/db/src/schema/`): `areas.ts`, `projects.ts` (areaId nullable), and the `task_projects` join table; `"area"`/`"project"` added to the `entityType` enum.
+- **Queries** (`packages/db/src/queries/projects.ts`): area/project tree + in-query progress rollup (done ÷ non-archived linked tasks).
+- **Server actions** (`apps/web/src/lib/api/projects.ts`): area + project CRUD and task-project assignment, all audited.
+- **UI**: sidebar nav, project detail route `app/(shell)/projects/[id]/` (`project-detail-client.tsx`), task-detail project picker, kanban swimlanes by project.
+- **MCP**: 10 new tools — `areas.{list,create,rename,archive}` and `projects.{list,create,update,archive}` + `tasks.{assign_project,unassign_project}`, each with audit logging + `request_id` idempotency. **Tool count is now 35** (was 25).
 
-**Next steps (in order):**
-1. User answers the two Section 2 confirmations above.
-2. Present **Section 3 — MCP tools**: `areas.create/rename/archive/list`, `projects.create/update/archive/list`, `tasks.assign_project/unassign_project` — each with audit logging + idempotency (`request_id`). Tool count 25 → ~33. Register in `packages/mcp-server/src/tools/index.ts`.
-3. Write spec to `docs/superpowers/specs/2026-06-23-projects-feature-design.md`, commit, user reviews.
-4. Then invoke `superpowers:writing-plans`.
+### Done: cleanup bundle (2026-06-30)
 
-To resume: re-invoke `superpowers:brainstorming`, re-read this section, continue at Section 2 confirmations.
+- **`db:seed:sample` script** — wired into `packages/db/package.json` (`pnpm --filter @baker-street/db db:seed:sample`).
+- **`.env.example` absolute-path note** — documented why `SQLITE_DB_PATH` should be absolute for `pnpm dev`.
+- **`saved_views` unique constraint** — partial unique index `saved_views_system_name_type_unique_idx` on `(name, type) WHERE is_system = 1` (migration `0002_third_quentin_quire.sql`). Prevents duplicate system views structurally; user-created views unconstrained.
+- **Tailwind `[--var]` audit** — verified resolved: zero bare CSS-var occurrences remain in `apps/web/src`.
 
-### Working-tree state (branch `bak-139-pglite-to-sqlite`)
+### Open follow-ups (not yet done)
 
-- **Committed:** `fd7d323` docs: update CLAUDE.md and HANDOFF.md for SQLite migration.
-- **Uncommitted, should be committed with the migration:**
-  - `turbo.json` — fixed a **real migration bug**: `passThroughEnv` still listed `PGLITE_DATA_DIR` on every task, so turbo stripped `SQLITE_DB_PATH` and the MCP server crashed with *"Cannot open database because the directory does not exist."* Changed all four entries to `SQLITE_DB_PATH`.
-- **Uncommitted, new (decide whether to keep/commit):**
-  - `packages/db/src/seed-sample.ts` — sample-data seeder (13 tasks across all statuses, 6 tags, 5 subtasks, 3 focus, 1 overdue, 2 due-today; also calls `setupFts()` which `next dev` otherwise skips). Re-runnable; wipes tasks/tags first. Run: `cd packages/db && set -a; source ../../.env; set +a && pnpm exec tsx src/seed-sample.ts`.
-- **Local `.env` (gitignored, already rewritten):** was stale from pre-migration (had `PGLITE_DATA_DIR` pointing at a non-existent `baker-street-project` path, no `SQLITE_DB_PATH`). Rewrote to an **absolute** `SQLITE_DB_PATH=/home/gary/repos/bakerst/baker-street-tasks-management/data/tasks.db` (absolute because the 3 packages run from different cwds under turbo; a relative path creates 3 separate DB files). `MCP_API_KEY` preserved.
-- **DB:** `data/tasks.db` migrated + seeded (system views + 13 sample tasks). Old `data/pglite/` and a stray `packages/db/data/` were removed.
-- **Dev server** was running on web **:3001** (port 3000 taken by another process) + MCP **:3100** — will stop on reboot; restart with `pnpm dev`.
-
-**Open follow-ups (not yet done):** commit the `turbo.json` fix; optionally add a `db:seed:sample` script to `packages/db/package.json`; optionally note the absolute-path requirement in `.env.example`.
+- **Projects not in global FTS** — deliberately deferred from v1; add to `tasks_fts` (or a parallel index) if project search is wanted.
+- **Saved-view filter wiring** — clicking Inbox/Active saved views may not visibly re-filter the task list (observation from 2026-02-12; status unconfirmed).
 
 ## What Was Done
 
@@ -96,13 +79,11 @@ Two glaring bugs were identified by visually inspecting the running app at `loca
 
 ## Current State
 
-- All pages render correctly: Dashboard, Tasks, Captures, Kanban, Search, Settings
-- Sidebar layout works properly on desktop (fixed sidebar with spacer)
-- Saved views show the correct 3 system views (All Tasks, Inbox, Active)
-- 2 sample tasks exist: "Test task from MCP" (High) and "Ship v1 release" (Urgent)
-- 1 sample capture exists: "Research vacation spots"
-- No tags have been created yet
-- No auth (single API key for MCP, as designed for v1)
+- Branch `main`, clean tree, merged through PR #4 (`d0990c4`).
+- Persistence: SQLite (better-sqlite3, WAL, FTS5). MCP server exposes **35 tools**.
+- Features live: Dashboard, Tasks, Kanban, Search, Settings, and **Projects** (Area→Project hierarchy with detail pages + kanban swimlanes).
+- Last activity (2026-06-25): security review of the dev seed script + build config — no findings.
+- No auth (single API key for MCP, as designed for v1).
 
 ## What's Next (Potential)
 

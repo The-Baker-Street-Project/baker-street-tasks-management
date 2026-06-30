@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX `saved_views_system_name_type_unique_idx` ON `saved_views` (`name`,`type`) WHERE "saved_views"."is_system" = 1;
