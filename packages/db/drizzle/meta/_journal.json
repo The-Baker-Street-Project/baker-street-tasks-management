@@ -15,6 +15,13 @@
       "when": 1782328185621,
       "tag": "0001_fine_jasper_sitwell",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1782803724649,
+      "tag": "0002_third_quentin_quire",
+      "breakpoints": true
     }
   ]
 }
