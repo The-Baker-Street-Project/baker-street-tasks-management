@@ -49,6 +49,7 @@ RUN mkdir -p /data && chown 1000:1000 /data
 RUN chown -R 1000:1000 /app
 
 EXPOSE 3000 3100
+ENV NODE_ENV=production
 ENV PORT=3000
 ENV MCP_PORT=3100
 ENV HOSTNAME=0.0.0.0

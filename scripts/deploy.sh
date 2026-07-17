@@ -93,7 +93,9 @@ for manifest in "${MANIFESTS[@]}"; do
 done
 echo ""
 
-kubectl apply -f <(cat "${MANIFESTS[@]}")
+for manifest in "${MANIFESTS[@]}"; do
+  kubectl apply -f "$manifest"
+done
 
 # --- Wait for rollout ---
 echo ""
