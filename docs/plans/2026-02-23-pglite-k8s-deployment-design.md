@@ -11,7 +11,7 @@ Replace PostgreSQL (Docker container) with PGlite (in-process WASM Postgres) and
 | Decision | Choice | Rationale |
 |----------|--------|-----------|
 | Database engine | PGlite (`@electric-sql/pglite`) | In-process, zero external deps, PGLITE_SWAP.md validated compatibility |
-| K8s target | Local k3s/microk8s on Sherlock | Homelab deployment alongside existing Docker stacks |
+| K8s target | Local k3s/microk8s on a homelab host | Homelab deployment alongside existing Docker stacks |
 | Pod layout | Single pod, single container | PGlite is single-writer; unified process avoids data split |
 | Process model | Unified Node.js process | One `server.ts` runs both Next.js (:3000) and MCP Express (:3100) |
 | MCP routing | Separate port :3100 | No URL changes for MCP clients, simpler than subpath routing |

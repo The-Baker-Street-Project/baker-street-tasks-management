@@ -23,7 +23,7 @@ therefore its own URL. No interactivity — display only.
 - **Auth:** None, matching the app's existing no-auth posture. `/tv/*` is
   readable by anything on the LAN that can reach the pod. Accepted risk.
 - **Deployment:** Ships inside the existing image to the single k3s pod on
-  Irene. The rotation host points at `http://<irene>:3000/tv/<view>`.
+  a dedicated display host. The rotation host points at `http://<host>:3000/tv/<view>`.
 
 ## Routes
 

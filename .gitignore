@@ -16,3 +16,11 @@ data/
 
 # WSL/Windows Zone.Identifier artifacts
 *:Zone.Identifier
+
+# Local AI session tooling — never published (skills live in savviety-skills)
+.claude/
+.claude.bak-*/
+CLAUDE.local.md
+.superpowers/
+scratchpad-sdd/
+k8s/secret.yaml
